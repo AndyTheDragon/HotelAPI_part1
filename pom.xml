@@ -14,11 +14,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <postgres.version>42.7.5</postgres.version>
         <hibernate.version>6.6.6.Final</hibernate.version>
+        <javalin.version>6.4.0</javalin.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <logback.version>1.5.17</logback.version>
         <lombok.version>1.18.36</lombok.version>
+        <jackson.version>2.18.3</jackson.version>
         <junit.version>5.12.0</junit.version>
         <testcontainers.version>1.20.5</testcontainers.version>
+        <restAssured.version>5.5.0</restAssured.version>
         <hamcrest>3.0</hamcrest>
-        <jackson.version>2.18.3</jackson.version>
     </properties>
 
     <dependencies>
@@ -35,6 +39,27 @@
             <version>${hibernate.version}</version>
         </dependency>
 
+        <!--  Javalin    -->
+        <dependency>
+            <groupId>io.javalin</groupId>
+            <artifactId>javalin-bundle</artifactId>
+            <version>${javalin.version}</version>
+        </dependency>
+
+        <!--  Logging    -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <!-- Logback Classic (SLF4J implementation) -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
         <!--  LOMBOK    -->
 
         <dependency>
@@ -42,6 +67,17 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- Jackson for JSON handling -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version> <!-- or the latest version -->
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version> <!-- or the latest version -->
         </dependency>
 
         <!--  TESTING      -->
@@ -62,6 +98,18 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${restAssured.version}</version> <!-- Use the latest version available -->
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${restAssured.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -96,18 +144,59 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Jackson for JSON handling -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version> <!-- or the latest version -->
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version> <!-- or the latest version -->
-        </dependency>
     </dependencies>
 
+    <build>
+
+        <finalName>app</finalName>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version> <!-- Make sure to use a version that supports JUnit 5 -->
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <transformers>
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>dat.Main</mainClass>
+                        </transformer>
+                    </transformers>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

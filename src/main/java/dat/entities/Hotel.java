@@ -1,5 +1,6 @@
 package dat.entities;
 
+import dat.dto.TestEntityDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,15 +14,19 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class TestEntity
+public class Hotel
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
 
-    public TestEntity(String name)
+    public Hotel(String name)
     {
         this.name = name;
+    }
+
+    public Hotel(TestEntityDTO testEntityDTO)
+    {
     }
 }
