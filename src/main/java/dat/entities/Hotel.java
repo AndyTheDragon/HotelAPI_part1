@@ -1,11 +1,10 @@
 package dat.entities;
 
-import dat.dto.TestEntityDTO;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import dat.dto.HotelDTO;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -20,13 +19,31 @@ public class Hotel
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String address;
+    @OneToMany
+    private List<Room> rooms;
 
     public Hotel(String name)
     {
         this.name = name;
     }
 
-    public Hotel(TestEntityDTO testEntityDTO)
+    public Hotel(HotelDTO hotelDTO)
     {
+        this.id = hotelDTO.getId();
+        this.name = hotelDTO.getName();
+        this.address = hotelDTO.getAddress();
+        this.rooms = hotelDTO.getRooms();
     }
+
+    public void addRoom(Room room)
+    {
+        if (room != null)
+        {
+            rooms.add(room);
+            room.setHotel(this);
+        }
+    }
+
+
 }
