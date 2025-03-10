@@ -1,6 +1,6 @@
 package dat.routes;
 
-import dat.controllers.TestController;
+import dat.controllers.HotelController;
 import io.javalin.apibuilder.EndpointGroup;
 import jakarta.persistence.EntityManagerFactory;
 import org.slf4j.Logger;
@@ -10,19 +10,20 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Routes
 {
-    private static TestController testController;
+    private static HotelController hotelController;
     private static final Logger logger = LoggerFactory.getLogger(Routes.class);
 
     public static EndpointGroup getRoutes(EntityManagerFactory emf)
     {
-        testController = new TestController(emf);
+        hotelController = new HotelController(emf);
         return () -> {
-            path("/poem", () -> {
-                get(testController::getAll);
-                post(testController::create);
-                get("/{id}", testController::getById);
-                put("/{id}", testController::update);
-                delete("/{id}", testController::delete);
+            path("/hotel", () -> {
+                get(hotelController::getAll);
+                post(hotelController::create);
+                get("/{id}", hotelController::getById);
+                put("/{id}", hotelController::update);
+                delete("/{id}", hotelController::delete);
+                get("{id}/rooms", hotelController::getRooms);
             });
         };
     }

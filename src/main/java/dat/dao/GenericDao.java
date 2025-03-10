@@ -1,5 +1,7 @@
 package dat.dao;
 
+import dat.entities.Hotel;
+import dat.entities.Room;
 import dat.exceptions.DaoException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -7,7 +9,7 @@ import jakarta.persistence.EntityManagerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GenericDao implements crudDAO
+public class GenericDao implements crudDAO, IHotelDAO
 {
     private static EntityManagerFactory emf;
     private static GenericDao instance;
@@ -144,5 +146,27 @@ public class GenericDao implements crudDAO
         {
             throw new DaoException(401, "Error deleting object. ", e);
         }
+    }
+
+    @Override
+    public Hotel addRoom(Hotel hotel, Room room)
+    {
+        hotel.addRoom(room);
+        return update(hotel);
+    }
+
+    @Override
+    public Hotel removeRoom(Hotel hotel, Room room)
+    {
+        hotel.removeRoom(room);
+        Hotel updatedHotel = update(hotel);
+        delete(room);
+        return updatedHotel;
+    }
+
+    @Override
+    public List<Room> getRoomsForHotel(Hotel hotel)
+    {
+        return hotel.getRooms();
     }
 }

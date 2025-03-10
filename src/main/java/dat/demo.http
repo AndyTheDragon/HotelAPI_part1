@@ -1,0 +1,35 @@
+GET localhost:7070/api/routes
+
+###
+GET localhost:7070/api/hotel
+
+###
+GET localhost:7070/api/hotel/3
+
+###
+POST localhost:7070/api/hotel
+Content-Type: "application/json"
+
+{
+    "name": "Park Hotel",
+    "address": "Brorsonsvej 2",
+    "rooms":[
+        {
+            "roomNumber": 101,
+            "price": 1000
+        }
+    ]
+}
+
+###
+PUT localhost:7070/api/hotel/1
+Content-Type: "application/json"
+
+{
+    "title": "Bug Hunt",
+    "author": "ChatGPT",
+    "content": "A semicolon lost in endless lines,\nA missing bracket, oh what signs!\nDebugging late by screen's dull glow,\nThe curse and joy all coders know."
+}
+
+###
+DELETE localhost:7070/api/hotel/1

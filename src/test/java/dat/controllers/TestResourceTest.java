@@ -2,7 +2,7 @@ package dat.controllers;
 
 import dat.config.ApplicationConfig;
 import dat.config.HibernateConfig;
-import dat.dto.TestEntityDTO;
+import dat.dto.HotelDTO;
 import dat.entities.Hotel;
 import dat.routes.Routes;
 import io.restassured.RestAssured;
@@ -75,7 +75,7 @@ class TestResourceTest
         Hotel entity = new Hotel("New entity");
         try
         {
-            String json = objectMapper.writeValueAsString(new TestEntityDTO(entity));
+            String json = objectMapper.writeValueAsString(new HotelDTO(entity));
             given().when()
                     .contentType("application/json")
                     .accept("application/json")
@@ -97,7 +97,7 @@ class TestResourceTest
         Hotel entity = new Hotel("New entity2");
         try
         {
-            String json = objectMapper.writeValueAsString(new TestEntityDTO(entity));
+            String json = objectMapper.writeValueAsString(new HotelDTO(entity));
             given().when()
                     .contentType("application/json")
                     .accept("application/json")

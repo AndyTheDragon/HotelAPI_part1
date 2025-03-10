@@ -2,19 +2,20 @@ package dat.controllers;
 
 import dat.dao.GenericDao;
 import dat.dto.ErrorMessage;
-import dat.dto.TestEntityDTO;
+import dat.dto.HotelDTO;
 import dat.entities.Hotel;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import jakarta.persistence.EntityManagerFactory;
+import org.jetbrains.annotations.NotNull;
 
 
-public class TestController
+public class HotelController implements IController
 {
     private final GenericDao genericDao;
 
 
-    public TestController(EntityManagerFactory emf)
+    public HotelController(EntityManagerFactory emf)
     {
         genericDao = GenericDao.getInstance(emf);
     }
@@ -40,7 +41,7 @@ public class TestController
             long id = ctx.pathParamAsClass("id", Long.class)
                     .check(i -> i>0, "id must be at least 0")
                     .getOrThrow((validator) -> new BadRequestResponse("Invalid id"));
-            TestEntityDTO foundEntity = new TestEntityDTO(genericDao.read(Hotel.class, id));
+            HotelDTO foundEntity = new HotelDTO(genericDao.read(Hotel.class, id));
             ctx.json(foundEntity);
 
         } catch (Exception ex){
@@ -53,10 +54,10 @@ public class TestController
     {
         try
         {
-            TestEntityDTO incomingTest = ctx.bodyAsClass(TestEntityDTO.class);
+            HotelDTO incomingTest = ctx.bodyAsClass(HotelDTO.class);
             Hotel entity = new Hotel(incomingTest);
             Hotel createdEntity = genericDao.create(entity);
-            ctx.json(new TestEntityDTO(createdEntity));
+            ctx.json(new HotelDTO(createdEntity));
         }
         catch (Exception ex)
         {
@@ -73,11 +74,11 @@ public class TestController
             long id = ctx.pathParamAsClass("id", Long.class)
                     .check(i -> i>0, "id must be at least 0")
                     .getOrThrow((validator) -> new BadRequestResponse("Invalid id"));
-            TestEntityDTO incomingEntity = ctx.bodyAsClass(TestEntityDTO.class);
+            HotelDTO incomingEntity = ctx.bodyAsClass(HotelDTO.class);
             Hotel entity = new Hotel(incomingEntity);
             entity.setId(id);
             Hotel updatedEntity = genericDao.update(entity);
-            TestEntityDTO returnedEntity = new TestEntityDTO(updatedEntity);
+            HotelDTO returnedEntity = new HotelDTO(updatedEntity);
             ctx.json(returnedEntity);
         }
         catch (Exception ex)
@@ -105,4 +106,20 @@ public class TestController
         }
     }
 
+    public void getRooms(@NotNull Context context)
+    {
+        try
+        {
+            long id = context.pathParamAsClass("id", Long.class)
+                    .check(i -> i>0, "id must be at least 0")
+                    .getOrThrow((validator) -> new BadRequestResponse("Invalid id"));
+            Hotel hotel = genericDao.read(Hotel.class, id);
+            context.json(hotel.getRooms());
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage error = new ErrorMessage("Error getting rooms");
+            context.status(404).json(error);
+        }
+    }
 }

@@ -9,31 +9,44 @@ import org.junit.jupiter.api.*;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.samePropertyValuesAs;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.hamcrest.Matchers.is;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GenericDaoTest
 {
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
     private static final GenericDao genericDAO = GenericDao.getInstance(emf);
-    private static Hotel t1;
-    private static Hotel t2;
+    private static Hotel h1, h2;
+    private static Room r1, r2, r3, r4;
+
 
     @BeforeEach
     void setUp()
     {
         try (EntityManager em = emf.createEntityManager())
         {
-            //TestEntity[] entities = EntityPopulator.populate(genericDAO);
-            t1 = new Hotel("TestEntityA");
-            t2 = new Hotel("TestEntityB");
+            r2 = new Room("A102");
+            r3 = new Room("B101");
+            r4 = new Room("B102");
+            r1 = new Room("A101");
+            h1 = new Hotel("Hotel A");
+            h2 = new Hotel("Hotel B");
+            h1.addRoom(r1);
+            h1.addRoom(r2);
+            h2.addRoom(r3);
+            h2.addRoom(r4);
             em.getTransaction().begin();
                 em.createQuery("DELETE FROM Hotel ").executeUpdate();
-                em.createNativeQuery("ALTER SEQUENCE testentity_id_seq RESTART WITH 1");
-                em.persist(t1);
-                em.persist(t2);
+                em.createNativeQuery("ALTER SEQUENCE hotel_id_seq RESTART WITH 1");
+                em.createQuery("DELETE FROM Room ").executeUpdate();
+                em.createNativeQuery("ALTER SEQUENCE room_id_seq RESTART WITH 1");
+//                em.persist(r1);
+//                em.persist(r2);
+//                em.persist(r3);
+//                em.persist(r4);
+                em.persist(h1);
+                em.persist(h2);
             em.getTransaction().commit();
         }
         catch (Exception e)
@@ -62,18 +75,18 @@ class GenericDaoTest
     void create()
     {
         // Arrange
-        Hotel t3 = new Hotel("TestEntityC");
+        Hotel h3 = new Hotel("Hotel C");
 
         // Act
-        Hotel result = genericDAO.create(t3);
+        Hotel result = genericDAO.create(h3);
 
         // Assert
-        assertThat(result, samePropertyValuesAs(t3));
+        assertThat(result, samePropertyValuesAs(h3));
         assertNotNull(result);
         try (EntityManager em = emf.createEntityManager())
         {
             Hotel found = em.find(Hotel.class, result.getId());
-            assertThat(found, samePropertyValuesAs(t3));
+            assertThat(found, samePropertyValuesAs(h3 ,"rooms"));
             Long amountInDb = em.createQuery("SELECT COUNT(t) FROM Hotel t", Long.class).getSingleResult();
             assertThat(amountInDb, is(3L));
         }
@@ -92,8 +105,8 @@ class GenericDaoTest
         List<Hotel> result = genericDAO.create(testEntities);
 
         // Assert
-        assertThat(result.get(0), samePropertyValuesAs(t3));
-        assertThat(result.get(1), samePropertyValuesAs(t4));
+        assertThat(result.get(0), samePropertyValuesAs(t3, "rooms"));
+        assertThat(result.get(1), samePropertyValuesAs(t4, "rooms"));
         assertNotNull(result);
         try (EntityManager em = emf.createEntityManager())
         {
@@ -106,13 +119,14 @@ class GenericDaoTest
     void read()
     {
         // Arrange
-        Hotel expected = t1;
+        Hotel expected = h1;
 
         // Act
-        Hotel result = genericDAO.read(Hotel.class, t1.getId());
+        Hotel result = genericDAO.read(Hotel.class, h1.getId());
 
         // Assert
-        assertThat(result, samePropertyValuesAs(expected));
+        assertThat(result, samePropertyValuesAs(expected, "rooms"));
+        //assertThat(result.getRooms(), containsInAnyOrder(expected.getRooms().toArray()));
     }
 
     @Test
@@ -129,7 +143,7 @@ class GenericDaoTest
     void findAll()
     {
         // Arrange
-        List<Hotel> expected = List.of(t1, t2);
+        List<Hotel> expected = List.of(h1, h2);
 
         // Act
         List<Hotel> result = genericDAO.findAll(Hotel.class);
@@ -145,13 +159,14 @@ class GenericDaoTest
     void update()
     {
         // Arrange
-        t1.setName("UpdatedName");
+        h1.setName("UpdatedName");
 
         // Act
-        Hotel result = genericDAO.update(t1);
+        Hotel result = genericDAO.update(h1);
 
         // Assert
-        assertThat(result, samePropertyValuesAs(t1));
+        assertThat(result, samePropertyValuesAs(h1, "rooms"));
+        assertThat(result.getRooms(), containsInAnyOrder(h1.getRooms()));
 
     }
 
@@ -159,9 +174,9 @@ class GenericDaoTest
     void updateMany()
     {
         // Arrange
-        t1.setName("UpdatedName");
-        t2.setName("UpdatedName");
-        List<Hotel> testEntities = List.of(t1, t2);
+        h1.setName("UpdatedName");
+        h2.setName("UpdatedName");
+        List<Hotel> testEntities = List.of(h1, h2);
 
         // Act
         List<Hotel> result = genericDAO.update(testEntities);
@@ -169,22 +184,22 @@ class GenericDaoTest
         // Assert
         assertNotNull(result);
         assertThat(result.size(), is(2));
-        assertThat(result.get(0), samePropertyValuesAs(t1));
-        assertThat(result.get(1), samePropertyValuesAs(t2));
+        assertThat(result.get(0), samePropertyValuesAs(h1));
+        assertThat(result.get(1), samePropertyValuesAs(h2));
     }
 
     @Test
     void delete()
     {
         // Act
-        genericDAO.delete(t1);
+        genericDAO.delete(h1);
 
         // Assert
         try (EntityManager em = emf.createEntityManager())
         {
             Long amountInDb = em.createQuery("SELECT COUNT(t) FROM Hotel t", Long.class).getSingleResult();
             assertThat(amountInDb, is(1L));
-            Hotel found = em.find(Hotel.class, t1.getId());
+            Hotel found = em.find(Hotel.class, h1.getId());
             assertNull(found);
         }
     }
@@ -193,14 +208,14 @@ class GenericDaoTest
     void delete_byId()
     {
         // Act
-        genericDAO.delete(Hotel.class, t2.getId());
+        genericDAO.delete(Hotel.class, h2.getId());
 
         // Assert
         try (EntityManager em = emf.createEntityManager())
         {
             Long amountInDb = em.createQuery("SELECT COUNT(t) FROM Hotel t", Long.class).getSingleResult();
             assertThat(amountInDb, is(1L));
-            Hotel found = em.find(Hotel.class, t2.getId());
+            Hotel found = em.find(Hotel.class, h2.getId());
             assertNull(found);
         }
     }

@@ -1,5 +1,6 @@
 package dat.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dat.entities.Room;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import lombok.ToString;
 @ToString
 public class RoomDTO
 {
+    @JsonIgnore
     private Long id;
     private Long hotelId;
     private String roomNumber;
