@@ -26,10 +26,12 @@ PUT localhost:7070/api/hotel/1
 Content-Type: "application/json"
 
 {
-    "title": "Bug Hunt",
-    "author": "ChatGPT",
-    "content": "A semicolon lost in endless lines,\nA missing bracket, oh what signs!\nDebugging late by screen's dull glow,\nThe curse and joy all coders know."
+    "name": "Lucky Star Hotel",
+    "address": "Brorsonsvej 1"
 }
 
 ###
 DELETE localhost:7070/api/hotel/1
+
+###
+GET localhost:7070/api/hotel/1/rooms

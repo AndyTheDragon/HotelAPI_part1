@@ -4,6 +4,7 @@ import dat.dao.GenericDao;
 import dat.dto.ErrorMessage;
 import dat.dto.HotelDTO;
 import dat.entities.Hotel;
+import dat.entities.Room;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import jakarta.persistence.EntityManagerFactory;
@@ -20,6 +21,7 @@ public class HotelController implements IController
         genericDao = GenericDao.getInstance(emf);
     }
 
+    @Override
     public void getAll(Context ctx)
     {
         try
@@ -33,6 +35,7 @@ public class HotelController implements IController
         }
     }
 
+    @Override
     public void getById(Context ctx)
     {
 
@@ -50,6 +53,7 @@ public class HotelController implements IController
         }
     }
 
+    @Override
     public void create(Context ctx)
     {
         try
@@ -57,6 +61,11 @@ public class HotelController implements IController
             HotelDTO incomingTest = ctx.bodyAsClass(HotelDTO.class);
             Hotel entity = new Hotel(incomingTest);
             Hotel createdEntity = genericDao.create(entity);
+            for (Room room : entity.getRooms())
+            {
+                room.setHotel(createdEntity);
+                genericDao.update(room);
+            }
             ctx.json(new HotelDTO(createdEntity));
         }
         catch (Exception ex)
@@ -75,15 +84,22 @@ public class HotelController implements IController
                     .check(i -> i>0, "id must be at least 0")
                     .getOrThrow((validator) -> new BadRequestResponse("Invalid id"));
             HotelDTO incomingEntity = ctx.bodyAsClass(HotelDTO.class);
-            Hotel entity = new Hotel(incomingEntity);
-            entity.setId(id);
-            Hotel updatedEntity = genericDao.update(entity);
+            Hotel hotelToUpdate = genericDao.read(Hotel.class, id);
+            if (incomingEntity.getName() != null)
+            {
+                hotelToUpdate.setName(incomingEntity.getName());
+            }
+            if (incomingEntity.getAddress() != null)
+            {
+                hotelToUpdate.setAddress(incomingEntity.getAddress());
+            }
+            Hotel updatedEntity = genericDao.update(hotelToUpdate);
             HotelDTO returnedEntity = new HotelDTO(updatedEntity);
             ctx.json(returnedEntity);
         }
         catch (Exception ex)
         {
-            ErrorMessage error = new ErrorMessage("Error updating entity");
+            ErrorMessage error = new ErrorMessage("Error updating entity. " + ex.getMessage());
             ctx.status(400).json(error);
         }
     }

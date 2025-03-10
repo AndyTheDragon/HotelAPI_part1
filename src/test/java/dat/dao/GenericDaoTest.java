@@ -76,9 +76,17 @@ class GenericDaoTest
     {
         // Arrange
         Hotel h3 = new Hotel("Hotel C");
+        Room r5 = new Room("C101");
+        r5.setHotel(h3);
+        h3.addRoom(r5);
+        System.out.println("---- " + h3);
+
 
         // Act
         Hotel result = genericDAO.create(h3);
+        System.out.println("---- " + result);
+        System.out.println("---- " + result.getRooms());
+        System.out.println("---- " + r5);
 
         // Assert
         assertThat(result, samePropertyValuesAs(h3));

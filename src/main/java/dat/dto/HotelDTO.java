@@ -17,6 +17,7 @@ import java.util.List;
 @ToString
 public class HotelDTO
 {
+    private long id;
     private String name;
     private String address;
     @JsonBackReference
@@ -24,6 +25,7 @@ public class HotelDTO
 
     public HotelDTO(Hotel hotel)
     {
+        this.id = hotel.getId();
         this.name = hotel.getName();
         this.address = hotel.getAddress();
         this.rooms = hotel.getRooms().stream().map(RoomDTO::new).toList();
