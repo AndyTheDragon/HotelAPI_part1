@@ -2,7 +2,6 @@ package dat.dto;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import dat.entities.Hotel;
-import dat.entities.Room;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +16,7 @@ import java.util.List;
 @ToString
 public class HotelDTO
 {
-    private long id;
+    private Long id;
     private String name;
     private String address;
     @JsonBackReference
