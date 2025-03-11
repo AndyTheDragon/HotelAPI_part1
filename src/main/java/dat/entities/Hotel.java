@@ -32,6 +32,12 @@ public class Hotel
         this.name = name;
     }
 
+    public Hotel(String name, String address)
+    {
+        this.name = name;
+        this.address = address;
+    }
+
     public Hotel(HotelDTO hotelDTO)
     {
         this.name = hotelDTO.getName();
