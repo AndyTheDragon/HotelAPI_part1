@@ -56,8 +56,7 @@ public class ApplicationConfig
         app.exception(Exception.class, (e,ctx)->{
             ObjectNode node = objectMapper.createObjectNode();
             node.put("msg",e.getMessage());
-            ctx.status(500);
-            ctx.json(node);
+            ctx.status(500).json(node);
         });
         return instance;
     }
