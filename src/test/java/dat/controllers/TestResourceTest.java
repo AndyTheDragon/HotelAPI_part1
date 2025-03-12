@@ -10,6 +10,8 @@ import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,6 +28,7 @@ class TestResourceTest
     private static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();;
     ObjectMapper objectMapper = new ObjectMapper();
     Hotel t1, t2;
+    Logger logger = LoggerFactory.getLogger(TestResourceTest.class.getName());
 
 
     @BeforeAll
@@ -101,9 +104,12 @@ class TestResourceTest
                     .post("/hotel")
                     .then()
                     .statusCode(200)
-                    .body("name", equalTo("Thon Partner Hotel")); // check here??
+                    .body("name", equalTo(entity.getName()))
+                    .body("address", equalTo(entity.getAddress()));
+                    //.body("rooms.size()", equalTo(1));
         } catch (JsonProcessingException e)
         {
+            logger.error("Error creating hotel", e);
             e.printStackTrace();
             fail();
         }
@@ -134,5 +140,9 @@ class TestResourceTest
     @Test
     void delete()
     {
+        given().when()
+                .delete("/hotel/" + t1.getId())
+                .then()
+                .statusCode(204);
     }
 }

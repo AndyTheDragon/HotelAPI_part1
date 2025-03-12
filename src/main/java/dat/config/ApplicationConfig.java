@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.config.JavalinConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.javalin.apibuilder.ApiBuilder.path;
 
@@ -13,6 +15,7 @@ public class ApplicationConfig
     private static ApplicationConfig instance;
     private static Javalin app;
     private static JavalinConfig javalinConfig;
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private ApplicationConfig() {}
 
@@ -35,6 +38,7 @@ public class ApplicationConfig
             config.bundledPlugins.enableRouteOverview("/routes");
             config.bundledPlugins.enableDevLogging();
         });
+        logger.info("Server initiated");
         return instance;
     }
 
@@ -43,12 +47,14 @@ public class ApplicationConfig
         javalinConfig.router.apiBuilder(()-> {
             path("/", routes);
         });
+        logger.info("Routes set");
         return instance;
     }
 
     public ApplicationConfig startServer(int port)
     {
         app.start(port);
+        logger.info("Server started on port: " + port);
         return instance;
     }
 
@@ -58,6 +64,7 @@ public class ApplicationConfig
             node.put("msg",e.getMessage());
             ctx.status(500).json(node);
         });
+        logger.info("ExceptionHandler initiated");
         return instance;
     }
 
@@ -65,6 +72,7 @@ public class ApplicationConfig
     public ApplicationConfig stopServer()
     {
         app.stop();
+        logger.info("Server stopped");
         return instance;
     }
 }

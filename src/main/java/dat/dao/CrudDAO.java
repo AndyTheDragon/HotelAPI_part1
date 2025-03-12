@@ -2,7 +2,7 @@ package dat.dao;
 
 import java.util.List;
 
-public interface crudDAO
+public interface CrudDAO
 {
     <T> T create(T object);
     <T> List<T> create(List<T> objects);

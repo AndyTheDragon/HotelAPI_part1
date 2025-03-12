@@ -5,25 +5,28 @@ import dat.entities.Room;
 import dat.exceptions.DaoException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GenericDao implements crudDAO, IHotelDAO
+public class GenericDAO implements CrudDAO, IHotelDAO
 {
     private static EntityManagerFactory emf;
-    private static GenericDao instance;
+    private static GenericDAO instance;
+    private static final Logger logger = LoggerFactory.getLogger(GenericDAO.class);
 
-    private GenericDao(EntityManagerFactory emf)
+    private GenericDAO(EntityManagerFactory emf)
     {
         this.emf = emf;
     }
 
-    public static GenericDao getInstance(EntityManagerFactory emf)
+    public static GenericDAO getInstance(EntityManagerFactory emf)
     {
         if (instance == null)
         {
-            instance = new GenericDao(emf);
+            instance = new GenericDAO(emf);
         }
         return instance;
     }
@@ -39,7 +42,8 @@ public class GenericDao implements crudDAO, IHotelDAO
         }
         catch (Exception e)
         {
-            throw new DaoException(401, "Error persisting object to db. ", e);
+            logger.error("Error persisting object to db", e);
+            throw new DaoException("Error persisting object to db. ", e);
         }
     }
 
@@ -57,7 +61,8 @@ public class GenericDao implements crudDAO, IHotelDAO
         }
         catch (Exception e)
         {
-            throw new DaoException(401, "Error persisting object to db. ", e);
+            logger.error("Error persisting object to db", e);
+            throw new DaoException("Error persisting object to db. ", e);
         }
     }
 
@@ -69,11 +74,13 @@ public class GenericDao implements crudDAO, IHotelDAO
         }
         catch (Exception e)
         {
-            throw new DaoException(401, "Error reading object from db", e);
+            logger.error("Error reading object from db", e);
+            throw new DaoException("Error reading object from db", e);
         }
     }
 
-    public <T> List<T> findAll(Class<T> type)
+    @Override
+    public <T> List<T> findAll(Class<T> type) throws DaoException
     {
         try (EntityManager em = emf.createEntityManager())
         {
@@ -81,7 +88,8 @@ public class GenericDao implements crudDAO, IHotelDAO
         }
         catch (Exception e)
         {
-            throw new DaoException(401, "Error reading objects from db", e);
+            logger.error("Error reading objects from db", e);
+            throw new DaoException("Error reading objects from db", e);
         }
     }
 
@@ -96,7 +104,8 @@ public class GenericDao implements crudDAO, IHotelDAO
         }
         catch (Exception e)
         {
-            throw new DaoException(401, "Error updating object. ", e);
+            logger.error("Error updating object", e);
+            throw new DaoException("Error updating object. ", e);
         }
     }
 
@@ -115,7 +124,8 @@ public class GenericDao implements crudDAO, IHotelDAO
         }
         catch (Exception e)
         {
-            throw new DaoException(401, "Error updating object. ", e);
+            logger.error("Error updating object", e);
+            throw new DaoException("Error updating object. ", e);
         }
     }
 
@@ -129,7 +139,8 @@ public class GenericDao implements crudDAO, IHotelDAO
         }
         catch (Exception e)
         {
-            throw new DaoException(401, "Error deleting object. ", e);
+            logger.error("Error deleting object", e);
+            throw new DaoException("Error deleting object. ", e);
         }
     }
 
@@ -144,7 +155,8 @@ public class GenericDao implements crudDAO, IHotelDAO
         }
         catch (Exception e)
         {
-            throw new DaoException(401, "Error deleting object. ", e);
+            logger.error("Error deleting object", e);
+            throw new DaoException("Error deleting object. ", e);
         }
     }
 

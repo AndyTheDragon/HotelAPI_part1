@@ -1,6 +1,6 @@
 package dat.controllers;
 
-import dat.dao.GenericDao;
+import dat.dao.GenericDAO;
 import dat.dto.ErrorMessage;
 import dat.dto.HotelDTO;
 import dat.entities.Hotel;
@@ -9,16 +9,19 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import jakarta.persistence.EntityManagerFactory;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class HotelController implements IController
 {
-    private final GenericDao genericDao;
+    private final GenericDAO genericDao;
+    private static final Logger logger = LoggerFactory.getLogger(HotelController.class);
 
 
     public HotelController(EntityManagerFactory emf)
     {
-        genericDao = GenericDao.getInstance(emf);
+        genericDao = GenericDAO.getInstance(emf);
     }
 
     @Override
@@ -30,6 +33,7 @@ public class HotelController implements IController
         }
         catch (Exception ex)
         {
+            logger.error("Error getting entities", ex);
             ErrorMessage error = new ErrorMessage("Error getting entities");
             ctx.status(404).json(error);
         }
@@ -48,6 +52,7 @@ public class HotelController implements IController
             ctx.json(foundEntity);
 
         } catch (Exception ex){
+            logger.error("Error getting entity", ex);
             ErrorMessage error = new ErrorMessage("No entity with that id");
             ctx.status(404).json(error);
         }
@@ -70,6 +75,7 @@ public class HotelController implements IController
         }
         catch (Exception ex)
         {
+            logger.error("Error creating entity", ex);
             ErrorMessage error = new ErrorMessage("Error creating entity");
             ctx.status(400).json(error);
         }
@@ -99,6 +105,7 @@ public class HotelController implements IController
         }
         catch (Exception ex)
         {
+            logger.error("Error updating entity", ex);
             ErrorMessage error = new ErrorMessage("Error updating entity. " + ex.getMessage());
             ctx.status(400).json(error);
         }
@@ -117,6 +124,7 @@ public class HotelController implements IController
         }
         catch (Exception ex)
         {
+            logger.error("Error deleting entity", ex);
             ErrorMessage error = new ErrorMessage("Error deleting entity");
             ctx.status(400).json(error);
         }
@@ -134,6 +142,7 @@ public class HotelController implements IController
         }
         catch (Exception ex)
         {
+            logger.error("Error getting rooms", ex);
             ErrorMessage error = new ErrorMessage("Error getting rooms");
             context.status(404).json(error);
         }
