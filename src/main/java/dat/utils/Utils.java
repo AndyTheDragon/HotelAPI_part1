@@ -19,11 +19,11 @@ public class Utils
             if (value != null) {
                 return value.trim();  // Trim whitespace
             } else {
-                throw new DaoException(500, String.format("Property %s not found in %s", propName, resourceName));
+                throw new DaoException(String.format("Property %s not found in %s", propName, resourceName));
             }
         } catch (IOException ex) {
             ex.printStackTrace();
-            throw new DaoException(500, String.format("Could not read property %s. Did you remember to build the project with MAVEN?", propName));
+            throw new DaoException(String.format("Could not read property %s. Did you remember to build the project with MAVEN?", propName));
         }
     }
 }
