@@ -13,10 +13,10 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class GenericDaoTest
+class GenericDAOTest
 {
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
-    private static final GenericDao genericDAO = GenericDao.getInstance(emf);
+    private static final GenericDAO genericDAO = GenericDAO.getInstance(emf);
     private static Hotel h1, h2;
     private static Room r1, r2, r3, r4;
 
