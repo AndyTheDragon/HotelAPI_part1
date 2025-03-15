@@ -19,15 +19,23 @@
         <logback.version>1.5.17</logback.version>
         <lombok.version>1.18.36</lombok.version>
         <jackson.version>2.18.3</jackson.version>
+        <jbcrypt.version>0.4</jbcrypt.version>
+        <token.security.version>1.0.4</token.security.version>
         <junit.version>5.12.0</junit.version>
         <testcontainers.version>1.20.5</testcontainers.version>
         <restAssured.version>5.5.0</restAssured.version>
         <hamcrest>3.0</hamcrest>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!--  DB    -->
-
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -64,13 +72,13 @@
         </dependency>
 
         <!--  LOMBOK    -->
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+
         <!-- Jackson for JSON handling -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -83,8 +91,19 @@
             <version>${jackson.version}</version> <!-- or the latest version -->
         </dependency>
 
-        <!--  TESTING      -->
+        <!--  Security  -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>${jbcrypt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Hartmannsolution</groupId>
+            <artifactId>TokenSecurity</artifactId>
+            <version>${token.security.version}</version>
+        </dependency>
 
+        <!--  TESTING      -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
