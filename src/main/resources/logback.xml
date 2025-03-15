@@ -22,13 +22,13 @@
         </encoder>
     </appender>
 
-    <root level="info">
+    <root level="warn">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE" />
     </root>
 
     <!-- Adjust log levels for specific packages if needed -->
-    <logger name="app" level="debug">
+    <logger name="dat" level="debug">
         <appender-ref ref="DEBUGFILE" />
         <appender-ref ref="CONSOLE" />
     </logger>
