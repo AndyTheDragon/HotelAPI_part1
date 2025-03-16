@@ -1,16 +1,16 @@
 package dat.exceptions;
 
-public class APIException extends RuntimeException
+public class ApiException extends RuntimeException
 {
     private final int code;
 
-    public APIException(int code, String msg)
+    public ApiException(int code, String msg)
     {
         super(msg);
         this.code = code;
     }
 
-    public APIException(int code, String msg, Exception e)
+    public ApiException(int code, String msg, Exception e)
     {
         super(msg, e);
         this.code = code;

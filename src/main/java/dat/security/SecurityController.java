@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dat.config.HibernateConfig;
 import dat.dto.ErrorMessage;
-import dat.exceptions.APIException;
+import dat.exceptions.ApiException;
 import dat.exceptions.NotAuthorizedException;
 import dat.exceptions.ValidationException;
 import dat.security.entities.User;
@@ -249,7 +249,7 @@ public class SecurityController implements ISecurityController
             return tokenSecurity.createToken(user, ISSUER, TOKEN_EXPIRE_TIME, SECRET_KEY);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new APIException(500, "Could not create token");
+            throw new ApiException(500, "Could not create token");
         }
     }
 
@@ -265,7 +265,7 @@ public class SecurityController implements ISecurityController
             }
         } catch (ParseException | NotAuthorizedException | TokenVerificationException e) {
             e.printStackTrace();
-            throw new APIException(HttpStatus.UNAUTHORIZED.getCode(), "Unauthorized. Could not verify token");
+            throw new ApiException(HttpStatus.UNAUTHORIZED.getCode(), "Unauthorized. Could not verify token");
         }
     }
 

@@ -2,7 +2,7 @@ package dat.utils;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dat.exceptions.APIException;
+import dat.exceptions.ApiException;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -31,7 +31,7 @@ public class DataAPIReader
             }
             else
             {
-                throw new APIException(response.statusCode(), "GET request failed. Status code: " + response.statusCode());
+                throw new ApiException(response.statusCode(), "GET request failed. Status code: " + response.statusCode());
                 //System.out.println("GET request failed. Status code: " + response.statusCode());
             }
         }
