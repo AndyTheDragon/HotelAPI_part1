@@ -13,11 +13,11 @@ import java.util.List;
 
 public class GenericDAO implements CrudDAO, IHotelDAO
 {
-    private static EntityManagerFactory emf;
+    protected static EntityManagerFactory emf;
     private static GenericDAO instance;
     private static final Logger logger = LoggerFactory.getLogger(GenericDAO.class);
 
-    private GenericDAO(EntityManagerFactory emf)
+    protected GenericDAO(EntityManagerFactory emf)
     {
         this.emf = emf;
     }
