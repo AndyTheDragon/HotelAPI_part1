@@ -66,7 +66,7 @@ public class GenericDAO implements CrudDAO, IHotelDAO
         }
     }
 
-    public <T> T read(Class<T> type, Long id)
+    public <T> T read(Class<T> type, Object id)
     {
         try (EntityManager em = emf.createEntityManager())
         {
@@ -144,7 +144,7 @@ public class GenericDAO implements CrudDAO, IHotelDAO
         }
     }
 
-    public <T> void delete(Class<T> type, Long id)
+    public <T> void delete(Class<T> type, Object id)
     {
         try (EntityManager em = emf.createEntityManager())
         {

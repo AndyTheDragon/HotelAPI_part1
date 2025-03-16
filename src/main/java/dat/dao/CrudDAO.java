@@ -10,11 +10,11 @@ public interface CrudDAO
     <T> T update(T object);
     <T> List<T> update(List<T> objects);
 
-    <T> T read(Class<T> type, Long id);
+    <T> T read(Class<T> type, Object id);
 
     <T> List<T> findAll(Class<T> type);
 
     <T> void delete(T object);
 
-    <T> void delete(Class<T> type, Long id);
+    <T> void delete(Class<T> type, Object id);
 }
