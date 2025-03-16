@@ -13,7 +13,7 @@ public class SecurityRoutes
     public static EndpointGroup getSecurityRoutes()
     {
         return ()->{
-            path("/auth", ()->{
+            path("auth", ()->{
                 get("/test", ctx->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from Open")),Role.ANYONE);
                 post("/login", securityController.login(),Role.ANYONE);
                 post("/register", securityController.register(),Role.ANYONE);
@@ -25,7 +25,7 @@ public class SecurityRoutes
     public static EndpointGroup getSecuredRoutes()
     {
         return ()->{
-            path("/protected", ()->{
+            path("protected", ()->{
 //              before(securityController.authenticate()); // This is done in ApplicationConfig now
                 get("/user_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from USER Protected")),Role.USER);
                 get("/admin_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from ADMIN Protected")),Role.ADMIN);

@@ -17,7 +17,7 @@ public class Routes
     {
         hotelController = new HotelController(emf);
         return () -> {
-            path("/hotel", () -> {
+            path("hotel", () -> {
                 get(hotelController::getAll);
                 post(hotelController::create);
                 get("/{id}", hotelController::getById);
