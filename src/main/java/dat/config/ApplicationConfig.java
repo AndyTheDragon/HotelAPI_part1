@@ -2,6 +2,8 @@ package dat.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dat.security.*;
+import dat.exceptions.ApiException;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.config.JavalinConfig;
@@ -17,6 +19,8 @@ public class ApplicationConfig
     private static JavalinConfig javalinConfig;
     private static final Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ISecurityController securityController = new SecurityController();
+
     private ApplicationConfig() {}
 
     public static ApplicationConfig getInstance()
@@ -58,8 +62,31 @@ public class ApplicationConfig
         return instance;
     }
 
+    public ApplicationConfig checkSecurityRoles() {
+        app.beforeMatched(securityController.authenticate()); // check if there is a valid token in the header
+        app.beforeMatched(securityController.authorize()); // check if the user has the required role
+        return instance;
+    }
+
+    public ApplicationConfig setApiExceptionHandling()
+    {
+        // Might be overruled by the setErrorHandling method
+        app.exception(ApiException.class, (e, ctx) -> {
+            logger.error("ApiException: " + e.getMessage());
+            int statusCode = e.getCode();
+            ObjectNode on = objectMapper
+                    .createObjectNode()
+                    .put("status", statusCode)
+                    .put("msg", e.getMessage());
+            ctx.json(on);
+            ctx.status(statusCode);
+        });
+        return instance;
+    }
+
     public ApplicationConfig handleException(){
         app.exception(Exception.class, (e,ctx)->{
+            logger.error("Exception: " + e.getMessage());
             ObjectNode node = objectMapper.createObjectNode();
             node.put("msg",e.getMessage());
             ctx.status(500).json(node);
