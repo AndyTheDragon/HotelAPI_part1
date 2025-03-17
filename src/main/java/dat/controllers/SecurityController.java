@@ -6,16 +6,15 @@ import dat.config.HibernateConfig;
 import dat.dao.ISecurityDAO;
 import dat.dao.SecurityDAO;
 import dat.dto.ErrorMessage;
+import dat.enums.Role;
 import dat.exceptions.ApiException;
 import dat.exceptions.NotAuthorizedException;
 import dat.exceptions.ValidationException;
 import dat.entities.User;
 import dat.utils.Utils;
 import dk.bugelhartmann.*;
-import io.javalin.http.ForbiddenResponse;
-import io.javalin.http.Handler;
-import io.javalin.http.HttpStatus;
-import io.javalin.http.UnauthorizedResponse;
+import io.javalin.http.*;
+import io.javalin.security.RouteRole;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
@@ -97,66 +96,59 @@ public class SecurityController implements ISecurityController
         };
     }
 
+    public void accessHandler(Context ctx)
+    {
+        // This is a preflight request => no need for authentication
+        if (ctx.method().toString().equals("OPTIONS")) {
+            ctx.status(200);
+            return;
+        }
+
+        // 1. Check if endpoint is open to all
+        // If the endpoint is not protected with roles or is open to ANYONE role, then skip
+        Set<RouteRole> permittedRoles = ctx.routeRoles();
+        if (permittedRoles.isEmpty() || permittedRoles.contains(Role.ANYONE)){
+            return;
+        }
+
+        // If there is no token we do not allow entry
+        String header = ctx.header("Authorization");
+        if (header == null) {
+            throw new UnauthorizedResponse("Authorization header is missing"); // UnauthorizedResponse is javalin 6 specific but response is not json!
+//                throw new dat.exceptions.APIException(401, "Authorization header is missing");
+        }
+
+        // If the Authorization Header was malformed, then no entry
+        String token = header.split(" ")[1];
+        if (token == null) {
+            throw new UnauthorizedResponse("Authorization header is malformed"); // UnauthorizedResponse is javalin 6 specific but response is not json!
+//                throw new dat.exceptions.APIException(401, "Authorization header is malformed");
+
+        }
+        UserDTO verifiedTokenUser = verifyToken(token);
+        if (verifiedTokenUser == null) {
+            throw new UnauthorizedResponse("Invalid user or token"); // UnauthorizedResponse is javalin 6 specific but response is not json!
+//                throw new dat.exceptions.APIException(401, "Invalid user or token");
+        }
+        ctx.attribute("user", verifiedTokenUser);
+
+        if (!userHasAllowedRole(verifiedTokenUser, permittedRoles)) {
+            throw new ForbiddenResponse("User does not have the required role to access this endpoint");
+            // throw new APIException(403, "User does not have the required role to access this endpoint");
+        }
+
+    }
+
     @Override
     public Handler authenticate()
     {
-        return (ctx) -> {
-            // This is a preflight request => no need for authentication
-            if (ctx.method().toString().equals("OPTIONS")) {
-                ctx.status(200);
-                return;
-            }
-            // If the endpoint is not protected with roles or is open to ANYONE role, then skip
-            Set<String> allowedRoles = ctx.routeRoles().stream().
-                    map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
-            if (isOpenEndpoint(allowedRoles))
-                return;
-
-            // If there is no token we do not allow entry
-            String header = ctx.header("Authorization");
-            if (header == null) {
-                throw new UnauthorizedResponse("Authorization header is missing"); // UnauthorizedResponse is javalin 6 specific but response is not json!
-//                throw new dat.exceptions.APIException(401, "Authorization header is missing");
-            }
-
-            // If the Authorization Header was malformed, then no entry
-            String token = header.split(" ")[1];
-            if (token == null) {
-                throw new UnauthorizedResponse("Authorization header is malformed"); // UnauthorizedResponse is javalin 6 specific but response is not json!
-//                throw new dat.exceptions.APIException(401, "Authorization header is malformed");
-
-            }
-            UserDTO verifiedTokenUser = verifyToken(token);
-            if (verifiedTokenUser == null) {
-                throw new UnauthorizedResponse("Invalid user or token"); // UnauthorizedResponse is javalin 6 specific but response is not json!
-//                throw new dat.exceptions.APIException(401, "Invalid user or token");
-            }
-            ctx.attribute("user", verifiedTokenUser); // -> ctx.attribute("user") in ApplicationConfig beforeMatched filter
-        };
+        return this::accessHandler;
     }
 
     @Override
     public Handler authorize()
     {
-        return (ctx) -> {
-            Set<String> allowedRoles = ctx.routeRoles().stream()
-                    .map(role -> role.toString().toUpperCase()).collect(Collectors.toSet());
-
-            // 1. Check if endpoint is open to all
-            if (isOpenEndpoint(allowedRoles))
-                return;
-            // 2. Get user and ensure it is not null
-            UserDTO user = ctx.attribute("user");
-            if (user == null) {
-                throw new ForbiddenResponse("No user was added from the token. Please authenticate first");
-                // throw new APIException(401, "No user was added from the token. Please authenticate first");
-            }
-            // 3. Check if user has the required role
-            if (!userHasAllowedRole(user, allowedRoles)) {
-                throw new ForbiddenResponse("User does not have the required role to access this endpoint");
-                // throw new APIException(403, "User does not have the required role to access this endpoint");
-            }
-        };
+        return (this::accessHandler);
     }
 
     @Override
@@ -215,11 +207,11 @@ public class SecurityController implements ISecurityController
         };
     }
 
-    private static boolean userHasAllowedRole(UserDTO user, Set<String> allowedRoles) {
-        return user.getRoles().stream()
-                .anyMatch(role -> allowedRoles.contains(role.toUpperCase()));
-    }
 
+    private boolean userHasAllowedRole(UserDTO user, Set<RouteRole> allowedRoles) {
+        return user.getRoles().stream()
+                .anyMatch(role -> allowedRoles.contains(Role.valueOf(role.toUpperCase())));
+    }
 
     private boolean isOpenEndpoint(Set<String> allowedRoles) {
         // If the endpoint is not protected with any roles:

@@ -20,7 +20,7 @@ public class ApplicationConfig
     private static JavalinConfig javalinConfig;
     private static final Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private static final ISecurityController securityController = new SecurityController();
+    private static final SecurityController securityController = new SecurityController();
 
     private ApplicationConfig() {}
 
@@ -64,8 +64,7 @@ public class ApplicationConfig
     }
 
     public ApplicationConfig checkSecurityRoles() {
-        app.beforeMatched(securityController.authenticate()); // check if there is a valid token in the header
-        app.beforeMatched(securityController.authorize()); // check if the user has the required role
+        app.beforeMatched(securityController::accessHandler); // authenticate and authorize
         return instance;
     }
 
