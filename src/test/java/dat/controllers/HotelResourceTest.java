@@ -15,20 +15,18 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class TestResourceTest
+class HotelResourceTest
 {
 
     private static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();;
     ObjectMapper objectMapper = new ObjectMapper();
     Hotel t1, t2;
-    Logger logger = LoggerFactory.getLogger(TestResourceTest.class.getName());
+    Logger logger = LoggerFactory.getLogger(HotelResourceTest.class.getName());
 
 
     @BeforeAll

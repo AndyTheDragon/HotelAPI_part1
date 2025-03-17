@@ -1,6 +1,5 @@
-package dat.security;
+package dat.controllers;
 
-import dk.bugelhartmann.UserDTO;
 import io.javalin.http.Handler;
 
 

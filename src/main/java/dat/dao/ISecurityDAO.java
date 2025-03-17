@@ -1,7 +1,7 @@
-package dat.security;
+package dat.dao;
 
 import dk.bugelhartmann.UserDTO;
-import dat.security.entities.User;
+import dat.entities.User;
 import dat.exceptions.ValidationException;
 
 

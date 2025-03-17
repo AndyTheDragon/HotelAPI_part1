@@ -1,4 +1,4 @@
-package dat.security.entities;
+package dat.entities;
 
 import jakarta.persistence.*;
 

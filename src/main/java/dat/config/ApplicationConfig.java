@@ -2,7 +2,8 @@ package dat.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import dat.security.*;
+import dat.controllers.ISecurityController;
+import dat.controllers.SecurityController;
 import dat.exceptions.ApiException;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;

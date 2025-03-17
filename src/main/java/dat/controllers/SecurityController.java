@@ -1,13 +1,15 @@
-package dat.security;
+package dat.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dat.config.HibernateConfig;
+import dat.dao.ISecurityDAO;
+import dat.dao.SecurityDAO;
 import dat.dto.ErrorMessage;
 import dat.exceptions.ApiException;
 import dat.exceptions.NotAuthorizedException;
 import dat.exceptions.ValidationException;
-import dat.security.entities.User;
+import dat.entities.User;
 import dat.utils.Utils;
 import dk.bugelhartmann.*;
 import io.javalin.http.ForbiddenResponse;

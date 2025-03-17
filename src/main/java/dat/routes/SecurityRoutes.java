@@ -1,7 +1,7 @@
-package dat.security;
+package dat.routes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dat.utils.Utils;
+import dat.controllers.SecurityController;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.security.RouteRole;
 
