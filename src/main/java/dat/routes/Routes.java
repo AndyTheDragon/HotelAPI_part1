@@ -13,15 +13,19 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Routes
 {
-    private static HotelController hotelController;
-    private static SecurityController securityController;
-    private static final ObjectMapper jsonMapper = new ObjectMapper();
-    private static final Logger logger = LoggerFactory.getLogger(Routes.class);
+    private HotelController hotelController;
+    private SecurityController securityController;
+    private final ObjectMapper jsonMapper = new ObjectMapper();
+    private final Logger logger = LoggerFactory.getLogger(Routes.class);
 
-    public static EndpointGroup getRoutes(EntityManagerFactory emf)
+    public Routes(HotelController hotelController, SecurityController securityController)
     {
-        hotelController = new HotelController(emf);
-        securityController = new SecurityController(emf);
+        this.hotelController = hotelController;
+        this.securityController = securityController;
+    }
+
+    public  EndpointGroup getRoutes()
+    {
         return () -> {
             path("hotel", hotelRoutes());
             path("auth", authRoutes());
@@ -29,7 +33,7 @@ public class Routes
         };
     }
 
-    private static EndpointGroup hotelRoutes()
+    private  EndpointGroup hotelRoutes()
     {
         return () -> {
             get(hotelController::getAll);
@@ -37,11 +41,11 @@ public class Routes
             get("/{id}", hotelController::getById);
             put("/{id}", hotelController::update);
             delete("/{id}", hotelController::delete);
-            get("{id}/rooms", hotelController::getRooms);
+            get("/{id}/rooms", hotelController::getRooms);
         };
     }
 
-    private static EndpointGroup authRoutes()
+    private  EndpointGroup authRoutes()
     {
         return () -> {
             get("/test", ctx->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from Open")), Role.ANYONE);
@@ -52,7 +56,7 @@ public class Routes
         };
     }
 
-    private static EndpointGroup protectedRoutes()
+    private  EndpointGroup protectedRoutes()
     {
         return () -> {
             get("/user_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from USER Protected")), Role.USER);
