@@ -3,6 +3,7 @@ package dat;
 import dat.config.ApplicationConfig;
 import dat.config.HibernateConfig;
 import dat.routes.Routes;
+import dat.routes.SecurityRoutes;
 import jakarta.persistence.EntityManagerFactory;
 
 
@@ -16,7 +17,11 @@ public class Main
                 .getInstance()
                 .initiateServer()
                 .setRoute(Routes.getRoutes(emf))
+                .setRoute(SecurityRoutes.getSecurityRoutes())
+                .setRoute(SecurityRoutes.getSecuredRoutes())
                 .handleException()
-                .startServer(7070);
+                .setApiExceptionHandling()
+                .startServer(7070)
+                .checkSecurityRoles();
     }
 }
