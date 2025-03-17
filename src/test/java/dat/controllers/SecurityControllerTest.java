@@ -12,7 +12,6 @@ import io.restassured.response.Response;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SecurityControllerTest {
 
-    private static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
+    private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
     private final Logger logger = LoggerFactory.getLogger(SecurityControllerTest.class.getName());
     private String token;
     private final String TEST_USER = "testuser";

@@ -2,7 +2,7 @@ package dat.exceptions;
 
 public class NotAuthorizedException extends RuntimeException
 {
-    private  int code;
+    private final int code;
     public NotAuthorizedException(int code, String message)
     {
       super(message);

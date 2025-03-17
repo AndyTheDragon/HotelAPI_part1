@@ -21,7 +21,7 @@ public class Role implements Serializable
     private String roleName;
 
     @ManyToMany(mappedBy = "roles")
-    private Set<User> users = new HashSet<>();
+    private final Set<User> users = new HashSet<>();
 
     public Role() {}
 

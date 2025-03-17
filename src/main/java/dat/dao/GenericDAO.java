@@ -5,6 +5,7 @@ import dat.entities.Room;
 import dat.exceptions.DaoException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +71,11 @@ public class GenericDAO implements CrudDAO, IHotelDAO
     {
         try (EntityManager em = emf.createEntityManager())
         {
+            T entity = em.find(type, id);
+            if (entity == null)
+            {
+                throw new EntityNotFoundException("No entity found with id " + id.toString());
+            }
             return em.find(type, id);
         }
         catch (Exception e)
@@ -84,6 +90,11 @@ public class GenericDAO implements CrudDAO, IHotelDAO
     {
         try (EntityManager em = emf.createEntityManager())
         {
+            List<T> entities = em.createQuery("SELECT t FROM " + type.getSimpleName() + " t", type).getResultList();
+            if (entities.isEmpty())
+            {
+                throw new EntityNotFoundException("No entities found in db");
+            }
             return em.createQuery("SELECT t FROM " + type.getSimpleName() + " t", type).getResultList();
         }
         catch (Exception e)

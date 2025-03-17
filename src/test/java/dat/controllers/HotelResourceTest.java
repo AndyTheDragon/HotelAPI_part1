@@ -23,10 +23,10 @@ import static org.hamcrest.Matchers.equalTo;
 class HotelResourceTest
 {
 
-    private static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();;
-    ObjectMapper objectMapper = new ObjectMapper();
+    private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
+    final ObjectMapper objectMapper = new ObjectMapper();
     Hotel t1, t2;
-    Logger logger = LoggerFactory.getLogger(HotelResourceTest.class.getName());
+    final Logger logger = LoggerFactory.getLogger(HotelResourceTest.class.getName());
 
 
     @BeforeAll

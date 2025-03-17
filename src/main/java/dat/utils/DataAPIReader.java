@@ -11,7 +11,7 @@ import java.net.http.HttpResponse;
 
 public class DataAPIReader
 {
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public String getDataFromClient(String url)
     {
