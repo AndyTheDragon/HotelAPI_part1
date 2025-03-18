@@ -32,11 +32,17 @@ class HotelResourceTest
     @BeforeAll
     static void setUpAll()
     {
-        ApplicationConfig.getInstance()
+        HotelController hotelController = new HotelController(emf);
+        SecurityController securityController = new SecurityController(emf);
+        Routes routes = new Routes(hotelController, securityController);
+        ApplicationConfig
+                .getInstance()
                 .initiateServer()
-                .setRoute(Routes.getRoutes(emf))
+                .setRoute(routes.getRoutes())
                 .handleException()
-                .startServer(7078);
+                .setApiExceptionHandling()
+                .startServer(7078)
+                .checkSecurityRoles();
         RestAssured.baseURI = "http://localhost:7078/api";
     }
 

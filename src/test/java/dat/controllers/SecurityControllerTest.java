@@ -34,11 +34,13 @@ class SecurityControllerTest {
 
     @BeforeAll
     static void setUpAll() {
-        ApplicationConfig.getInstance()
+        HotelController hotelController = new HotelController(emf);
+        SecurityController securityController = new SecurityController(emf);
+        Routes routes = new Routes(hotelController, securityController);
+        ApplicationConfig
+                .getInstance()
                 .initiateServer()
-                .setRoute(Routes.getRoutes(emf))
-                .setRoute(SecurityRoutes.getSecurityRoutes())
-                .setRoute(SecurityRoutes.getSecuredRoutes())
+                .setRoute(routes.getRoutes())
                 .handleException()
                 .setApiExceptionHandling()
                 .startServer(7079)

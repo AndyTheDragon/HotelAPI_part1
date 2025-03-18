@@ -2,6 +2,7 @@ package dat.dao;
 
 import dat.config.HibernateConfig;
 import dat.entities.*;
+import dat.exceptions.DaoException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
@@ -140,11 +141,14 @@ class GenericDAOTest
     @Test
     void read_notFound()
     {
+
+
         // Act
-        Hotel result = genericDAO.read(Hotel.class, 1000L);
+        DaoException exception = assertThrows(DaoException.class, () -> genericDAO.read(Hotel.class, 1000L));
+        //Hotel result = genericDAO.read(Hotel.class, 1000L);
 
         // Assert
-        assertNull(result);
+        assertThat(exception.getMessage(), is("Error reading object from db"));
     }
 
     @Test
