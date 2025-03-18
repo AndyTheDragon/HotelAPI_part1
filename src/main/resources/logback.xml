@@ -30,7 +30,6 @@
     <!-- Adjust log levels for specific packages if needed -->
     <logger name="dat" level="debug">
         <appender-ref ref="DEBUGFILE" />
-        <appender-ref ref="CONSOLE" />
     </logger>
 </configuration>
 
