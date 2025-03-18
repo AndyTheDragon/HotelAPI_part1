@@ -22,7 +22,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SecurityControllerTest {
 
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();

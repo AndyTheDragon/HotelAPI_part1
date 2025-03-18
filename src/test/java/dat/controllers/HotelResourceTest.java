@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HotelResourceTest
 {
 
