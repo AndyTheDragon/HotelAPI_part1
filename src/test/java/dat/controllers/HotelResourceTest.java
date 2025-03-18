@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HotelResourceTest
 {
 
@@ -57,15 +57,14 @@ class HotelResourceTest
             em.getTransaction().begin();
             em.createQuery("DELETE FROM Room ").executeUpdate();
             em.createQuery("DELETE FROM Hotel ").executeUpdate();
-            em.createNativeQuery("ALTER SEQUENCE room_id_seq RESTART WITH 1");
-            em.createNativeQuery("ALTER SEQUENCE hotel_id_seq RESTART WITH 1");
+
             em.persist(t1);
             em.persist(t2);
             em.getTransaction().commit();
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            logger.error("Error setting up test", e);
         }
     }
 
@@ -95,7 +94,7 @@ class HotelResourceTest
     @Test
     void create()
     {
-        Hotel entity = new Hotel("Thon Partner Hotel", "Carl Gustavs Gade 1");
+        Hotel entity = new Hotel("Thor Partner Hotel", "Carl Gustavs Gade 1");
         Room room = new Room("201");
         entity.addRoom(room);
         try
@@ -114,7 +113,7 @@ class HotelResourceTest
         } catch (JsonProcessingException e)
         {
             logger.error("Error creating hotel", e);
-            e.printStackTrace();
+
             fail();
         }
     }
@@ -136,7 +135,7 @@ class HotelResourceTest
                     .body("name", equalTo("New entity2"));
         } catch (JsonProcessingException e)
         {
-            e.printStackTrace();
+            logger.error("Error updating hotel", e);
             fail();
         }
     }
