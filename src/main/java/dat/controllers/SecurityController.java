@@ -27,7 +27,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SecurityController implements ISecurityController
 {
@@ -151,22 +150,26 @@ public class SecurityController implements ISecurityController
         return (this::accessHandler);
     }
 
+    private UserDTO getUserFromToken(Context ctx)
+    {
+        String header = ctx.header("Authorization");
+        if (header == null)
+        {
+            throw new UnauthorizedResponse("Authorization header is missing");
+        }
+        String token = header.split(" ")[1];
+        if (token == null)
+        {
+            throw new UnauthorizedResponse("Authorization header is malformed");
+        }
+        return verifyToken(token);
+    }
     @Override
     public Handler verify()
     {
         return (ctx) -> {
             ObjectNode returnJson = objectMapper.createObjectNode();
-            String header = ctx.header("Authorization");
-            if (header == null)
-            {
-                throw new UnauthorizedResponse("Authorization header is missing");
-            }
-            String token = header.split(" ")[1];
-            if (token == null)
-            {
-                throw new UnauthorizedResponse("Authorization header is malformed");
-            }
-            UserDTO verifiedTokenUser = verifyToken(token);
+            UserDTO verifiedTokenUser = getUserFromToken(ctx);
             if (verifiedTokenUser == null)
             {
                 throw new UnauthorizedResponse("Invalid user or token");
