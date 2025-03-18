@@ -77,14 +77,14 @@ class SecurityControllerTest {
         }
     }
 
-    @AfterAll
-    void tearDown() {
-        if (emf != null && emf.isOpen()) {
-            emf.close();
-            System.out.println("EntityManagerFactory closed");
-        }
-        ApplicationConfig.getInstance().stopServer();
-    }
+//    @AfterAll
+//    void tearDown() {
+//        if (emf != null && emf.isOpen()) {
+//            emf.close();
+//            System.out.println("EntityManagerFactory closed");
+//        }
+//        ApplicationConfig.getInstance().stopServer();
+//    }
 
     @Test
     void testLogin_Success() {

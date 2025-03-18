@@ -56,15 +56,15 @@ class GenericDAOTest
         }
     }
 
-    @AfterAll
-    void tearDown()
-    {
-        if (emf != null && emf.isOpen())
-        {
-            emf.close();
-            System.out.println("EntityManagerFactory closed");
-        }
-    }
+//    @AfterAll
+//    void tearDown()
+//    {
+//        if (emf != null && emf.isOpen())
+//        {
+//            emf.close();
+//            System.out.println("EntityManagerFactory closed");
+//        }
+//    }
 
     @Test
     void getInstance()
