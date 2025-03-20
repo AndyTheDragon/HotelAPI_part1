@@ -87,6 +87,16 @@ class SecurityControllerTest {
 //    }
 
     @Test
+    void healtcheck_test() {
+        given()
+        .when()
+            .get("/auth/healthcheck")
+        .then()
+            .statusCode(200)
+            .body("msg", equalTo("API is up and running"));
+    }
+
+    @Test
     void testLogin_Success() {
         Map<String, String> loginRequest = new HashMap<>();
         loginRequest.put("username", TEST_USER);

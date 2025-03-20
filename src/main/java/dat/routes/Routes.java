@@ -49,6 +49,7 @@ public class Routes
     {
         return () -> {
             get("/test", ctx->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from Open")), Role.ANYONE);
+            get("/healthcheck", securityController::healthCheck, Role.ANYONE);
             post("/login", securityController.login(), Role.ANYONE);
             post("/register", securityController.register(), Role.ANYONE);
             get("/verify", securityController.verify() , Role.ANYONE);
