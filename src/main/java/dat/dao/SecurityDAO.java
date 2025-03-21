@@ -1,6 +1,7 @@
 package dat.dao;
 
 import dat.entities.UserAccount;
+import dat.enums.Roles;
 import dat.exceptions.ApiException;
 import dat.exceptions.ValidationException;
 import dat.entities.Role;
@@ -14,79 +15,44 @@ import org.slf4j.LoggerFactory;
 
 import java.util.stream.Collectors;
 
-public class SecurityDAO implements ISecurityDAO
+public class SecurityDAO extends GenericDAO implements ISecurityDAO
 {
-    private static SecurityDAO instance;
-    private final EntityManagerFactory emf;
     private final Logger logger = LoggerFactory.getLogger(SecurityDAO.class);
 
     public SecurityDAO(EntityManagerFactory emf)
     {
-        this.emf = emf;
+        super(emf);
     }
-
-    public static SecurityDAO getInstance(EntityManagerFactory emf)
-    {
-        if (instance == null)
-        {
-            instance = new SecurityDAO(emf);
-        }
-        return instance;
-    }
-
 
     @Override
     public UserDTO getVerifiedUser(String username, String password) throws ValidationException
     {
-        try (EntityManager em = emf.createEntityManager())
+
+        UserAccount userAccount = super.getById(UserAccount.class, username); //Throws DaoException if user not found
+        if (!userAccount.verifyPassword(password))
         {
-            UserAccount userAccount = em.find(UserAccount.class, username);
-            if (userAccount == null)
-            {
-                logger.error("User not found (username " + username + ")");
-                throw new EntityNotFoundException("User not found (username " + username + ")");
-            }
-            //user.getRoles().size();
-            if (!userAccount.verifyPassword(password))
-            {
-                logger.error(userAccount.getUsername() + " " + userAccount.getPassword());
-                throw new ValidationException("Password does not match");
-            }
-            return new UserDTO(userAccount.getUsername(), userAccount.getRoles().stream().map(Role::getRoleName).collect(Collectors.toSet()));
+            logger.error(userAccount.getUsername() + " " + userAccount.getPassword());
+            throw new ValidationException("Password does not match");
         }
+        return new UserDTO(userAccount.getUsername(), userAccount.getRoles().stream().map(Role::getRoleName).collect(Collectors.toSet()));
+
     }
 
     @Override
     public UserAccount createUser(String username, String password)
     {
-        try (EntityManager em = emf.createEntityManager())
+        UserAccount userAccount = new UserAccount(username, password);
+        userAccount.addRole(Roles.USER);
+        try
         {
-            // check if user already exists
-            UserAccount userAccount = em.find(UserAccount.class, username);
-            if (userAccount != null)
-            {
-                logger.error("User already exists (username " + username + ")");
-                throw new EntityExistsException("User already exists (username " + username + ")");
-            }
-            userAccount = new UserAccount(username, password);
-            em.getTransaction().begin();
-            // check if role user already exists
-            Role userRole = em.find(Role.class, "user");
-            if (userRole == null)
-            {
-                logger.info("Role user not found, creating it");
-                userRole = new Role("user");
-                em.persist(userRole);
-            }
-            userAccount.addRole(userRole);
-            em.persist(userAccount);
-            em.getTransaction().commit();
+            userAccount = super.create(userAccount);
             logger.info("User created (username " + username + ")");
             return userAccount;
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             logger.error("Error creating user", e);
-            throw new ApiException(400, "Error creating user", e);
+            throw new EntityExistsException("Error creating user", e);
         }
     }
 

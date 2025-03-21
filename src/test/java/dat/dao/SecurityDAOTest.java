@@ -3,6 +3,7 @@ package dat.dao;
 import dat.config.HibernateConfig;
 import dat.entities.UserAccount;
 import dat.exceptions.ApiException;
+import dat.exceptions.DaoException;
 import dat.exceptions.ValidationException;
 import dat.entities.Role;
 import dk.bugelhartmann.UserDTO;
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 //@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SecurityDAOTest {
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
-    private static final SecurityDAO securityDAO = SecurityDAO.getInstance(emf);
+    private static final SecurityDAO securityDAO = new SecurityDAO(emf);
     private static UserAccount testUserAccount;
     private static Role userRole, adminRole;
 
@@ -88,11 +89,11 @@ class SecurityDAOTest {
         String password = "password123";
 
         // Act & Assert
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+        DaoException exception = assertThrows(DaoException.class, () -> {
             securityDAO.getVerifiedUser(nonExistentUsername, password);
         });
 
-        assertTrue(exception.getMessage().contains("User not found"));
+        assertTrue(exception.getMessage().contains("Error reading object from db"));
     }
 
     @Test
