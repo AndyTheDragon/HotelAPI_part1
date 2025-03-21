@@ -9,6 +9,7 @@ import dat.dto.ErrorMessage;
 import dat.entities.UserAccount;
 import dat.enums.Roles;
 import dat.exceptions.ApiException;
+import dat.exceptions.DaoException;
 import dat.exceptions.NotAuthorizedException;
 import dat.exceptions.ValidationException;
 import dat.utils.PropertyReader;
@@ -70,7 +71,7 @@ public class SecurityController implements ISecurityController
 
             ctx.status(HttpStatus.OK).json(returnJson);
         }
-        catch (EntityNotFoundException | ValidationException e) {
+        catch (EntityNotFoundException | ValidationException | DaoException e) {
             logger.error("Error logging in user", e);
             throw new ApiException(401, "Could not verify user", e);
             //ctx.status(HttpStatus.UNAUTHORIZED).json(new ErrorMessage("Could not verify user " + e.getMessage()));

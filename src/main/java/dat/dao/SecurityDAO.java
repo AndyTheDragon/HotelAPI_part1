@@ -22,7 +22,7 @@ public class SecurityDAO extends GenericDAO implements ISecurityDAO
     }
 
     @Override
-    public UserDTO getVerifiedUser(String username, String password) throws ValidationException
+    public UserDTO getVerifiedUser(String username, String password) throws ValidationException, DaoException
     {
 
         UserAccount userAccount = super.getById(UserAccount.class, username); //Throws DaoException if user not found

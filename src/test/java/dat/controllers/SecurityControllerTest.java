@@ -54,13 +54,7 @@ class SecurityControllerTest {
             em.getTransaction().begin();
             // Clean up existing data
             em.createQuery("DELETE FROM UserAccount").executeUpdate();
-            em.createQuery("DELETE FROM Role").executeUpdate();
 
-            // Create test roles
-            Role userRole = new Role("user");
-            Role adminRole = new Role("admin");
-            em.persist(userRole);
-            em.persist(adminRole);
 
             // Create test user with user role
             UserAccount testUserAccount = new UserAccount(TEST_USER, TEST_PASSWORD);
