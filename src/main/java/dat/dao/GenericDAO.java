@@ -12,24 +12,14 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GenericDAO implements CrudDAO, IHotelDAO
+public class GenericDAO implements CrudDAO
 {
     protected static EntityManagerFactory emf;
-    private static GenericDAO instance;
     private static final Logger logger = LoggerFactory.getLogger(GenericDAO.class);
 
-    protected GenericDAO(EntityManagerFactory emf)
+    public GenericDAO(EntityManagerFactory emf)
     {
         this.emf = emf;
-    }
-
-    public static GenericDAO getInstance(EntityManagerFactory emf)
-    {
-        if (instance == null)
-        {
-            instance = new GenericDAO(emf);
-        }
-        return instance;
     }
 
     public <T> T create(T object)
@@ -67,7 +57,7 @@ public class GenericDAO implements CrudDAO, IHotelDAO
         }
     }
 
-    public <T> T read(Class<T> type, Object id)
+    public <T> T getById(Class<T> type, Object id)
     {
         try (EntityManager em = emf.createEntityManager())
         {
@@ -76,7 +66,7 @@ public class GenericDAO implements CrudDAO, IHotelDAO
             {
                 throw new EntityNotFoundException("No entity found with id " + id.toString());
             }
-            return em.find(type, id);
+            return entity;
         }
         catch (Exception e)
         {
@@ -86,7 +76,7 @@ public class GenericDAO implements CrudDAO, IHotelDAO
     }
 
     @Override
-    public <T> List<T> findAll(Class<T> type) throws DaoException
+    public <T> List<T> getAll(Class<T> type) throws DaoException
     {
         try (EntityManager em = emf.createEntityManager())
         {
@@ -171,25 +161,5 @@ public class GenericDAO implements CrudDAO, IHotelDAO
         }
     }
 
-    @Override
-    public Hotel addRoom(Hotel hotel, Room room)
-    {
-        hotel.addRoom(room);
-        return update(hotel);
-    }
 
-    @Override
-    public Hotel removeRoom(Hotel hotel, Room room)
-    {
-        hotel.removeRoom(room);
-        Hotel updatedHotel = update(hotel);
-        delete(room);
-        return updatedHotel;
-    }
-
-    @Override
-    public List<Room> getRoomsForHotel(Hotel hotel)
-    {
-        return hotel.getRooms();
-    }
 }

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class GenericDAOTest
 {
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
-    private static final GenericDAO genericDAO = GenericDAO.getInstance(emf);
+    private static final GenericDAO genericDAO = new HotelDAO(emf);
     private static Hotel h1, h2;
     private static Room r1, r2, r3, r4;
 
@@ -131,7 +131,7 @@ class GenericDAOTest
         Hotel expected = h1;
 
         // Act
-        Hotel result = genericDAO.read(Hotel.class, h1.getId());
+        Hotel result = genericDAO.getById(Hotel.class, h1.getId());
 
         // Assert
         assertThat(result, samePropertyValuesAs(expected, "rooms"));
@@ -144,7 +144,7 @@ class GenericDAOTest
 
 
         // Act
-        DaoException exception = assertThrows(DaoException.class, () -> genericDAO.read(Hotel.class, 1000L));
+        DaoException exception = assertThrows(DaoException.class, () -> genericDAO.getById(Hotel.class, 1000L));
         //Hotel result = genericDAO.read(Hotel.class, 1000L);
 
         // Assert
@@ -158,7 +158,7 @@ class GenericDAOTest
         List<Hotel> expected = List.of(h1, h2);
 
         // Act
-        List<Hotel> result = genericDAO.findAll(Hotel.class);
+        List<Hotel> result = genericDAO.getAll(Hotel.class);
 
         // Assert
         assertNotNull(result);
