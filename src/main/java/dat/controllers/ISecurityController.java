@@ -1,14 +1,13 @@
 package dat.controllers;
 
-import io.javalin.http.Handler;
+import io.javalin.http.Context;
 
 
 public interface ISecurityController
 {
-    Handler login(); // to get a token
-    Handler register(); // to get a user
-    Handler authenticate(); // to verify roles inside token
-    Handler authorize();
-    Handler verify(); // to verify a token
-    Handler timeToLive(); // to check how long a token is valid
+    void login(Context ctx); // to get a token
+    void register(Context ctx); // to get a user
+    void verify(Context ctx); // to verify a token
+    void timeToLive(Context ctx); // to check how long a token is valid
+    void accessHandler(Context ctx); // to check if a user has access to a route
 }

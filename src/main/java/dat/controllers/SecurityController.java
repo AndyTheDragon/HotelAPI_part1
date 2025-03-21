@@ -58,47 +58,43 @@ public class SecurityController implements ISecurityController
 
 
     @Override
-    public Handler login()
+    public void login(Context ctx)
     {
-        return (ctx) -> {
-            ObjectNode returnJson = objectMapper.createObjectNode();
-            try {
-                UserDTO userInput = ctx.bodyAsClass(UserDTO.class);
-                UserDTO verifiedUser = securityDAO.getVerifiedUser(userInput.getUsername(),  userInput.getPassword());
-                String token = createToken(verifiedUser);
-                returnJson.put("token", token)
-                        .put("username", verifiedUser.getUsername());
+        ObjectNode returnJson = objectMapper.createObjectNode();
+        try {
+            UserDTO userInput = ctx.bodyAsClass(UserDTO.class);
+            UserDTO verifiedUser = securityDAO.getVerifiedUser(userInput.getUsername(),  userInput.getPassword());
+            String token = createToken(verifiedUser);
+            returnJson.put("token", token)
+                    .put("username", verifiedUser.getUsername());
 
-                ctx.status(HttpStatus.OK).json(returnJson);
-            }
-            catch (EntityNotFoundException | ValidationException e) {
-                logger.error("Error logging in user", e);
-                //throw new APIException(401, "Could not verify user", e);
-                ctx.status(HttpStatus.UNAUTHORIZED).json(new ErrorMessage("Could not verify user " + e.getMessage()));
-            }
-        };
+            ctx.status(HttpStatus.OK).json(returnJson);
+        }
+        catch (EntityNotFoundException | ValidationException e) {
+            logger.error("Error logging in user", e);
+            //throw new APIException(401, "Could not verify user", e);
+            ctx.status(HttpStatus.UNAUTHORIZED).json(new ErrorMessage("Could not verify user " + e.getMessage()));
+        }
     }
 
     @Override
-    public Handler register()
+    public void register(Context ctx)
     {
-        return (ctx) -> {
-            ObjectNode returnJson = objectMapper.createObjectNode();
-            try {
-                UserDTO userInput = ctx.bodyAsClass(UserDTO.class);
-                User createdUser = securityDAO.createUser(userInput.getUsername(), userInput.getPassword());
-                String token = createToken(new UserDTO(createdUser.getUsername(), Set.of("USER")));
-                returnJson.put("token", token)
-                        .put("username", createdUser.getUsername());
+        ObjectNode returnJson = objectMapper.createObjectNode();
+        try {
+            UserDTO userInput = ctx.bodyAsClass(UserDTO.class);
+            User createdUser = securityDAO.createUser(userInput.getUsername(), userInput.getPassword());
+            String token = createToken(new UserDTO(createdUser.getUsername(), Set.of("USER")));
+            returnJson.put("token", token)
+                    .put("username", createdUser.getUsername());
 
-                ctx.status(HttpStatus.CREATED).json(returnJson);
-            }
-            catch (EntityExistsException e) {
-                logger.error("Error registering user", e);
-                //throw new APIException(422, "Could not register user: User already exists", e);
-                ctx.status(HttpStatus.UNPROCESSABLE_CONTENT).json(new ErrorMessage("User already exists " + e.getMessage()));
-            }
-        };
+            ctx.status(HttpStatus.CREATED).json(returnJson);
+        }
+        catch (EntityExistsException e) {
+            logger.error("Error registering user", e);
+            //throw new APIException(422, "Could not register user: User already exists", e);
+            ctx.status(HttpStatus.UNPROCESSABLE_CONTENT).json(new ErrorMessage("User already exists " + e.getMessage()));
+        }
     }
 
     public void accessHandler(Context ctx)
@@ -144,18 +140,6 @@ public class SecurityController implements ISecurityController
 
     }
 
-    @Override
-    public Handler authenticate()
-    {
-        return this::accessHandler;
-    }
-
-    @Override
-    public Handler authorize()
-    {
-        return (this::accessHandler);
-    }
-
     private UserDTO getUserFromToken(Context ctx)
     {
         String header = ctx.header("Authorization");
@@ -170,68 +154,65 @@ public class SecurityController implements ISecurityController
         }
         return verifyToken(token);
     }
+
     @Override
-    public Handler verify()
+    public void verify(Context ctx)
     {
-        return (ctx) -> {
-            ObjectNode returnJson = objectMapper.createObjectNode();
-            UserDTO verifiedTokenUser = getUserFromToken(ctx);
-            if (verifiedTokenUser == null)
-            {
-                throw new UnauthorizedResponse("Invalid user or token");
-            }
-            returnJson.put("msg", "Token is valid");
-            ctx.status(HttpStatus.OK).json(returnJson);
-        };
+
+        ObjectNode returnJson = objectMapper.createObjectNode();
+        UserDTO verifiedTokenUser = getUserFromToken(ctx);
+        if (verifiedTokenUser == null)
+        {
+            throw new UnauthorizedResponse("Invalid user or token");
+        }
+        returnJson.put("msg", "Token is valid");
+        ctx.status(HttpStatus.OK).json(returnJson);
+
     }
 
     @Override
-    public Handler timeToLive()
+    public void timeToLive(Context ctx)
     {
-        return (ctx) -> {
-            ObjectNode returnJson = objectMapper.createObjectNode();
-            String header = ctx.header("Authorization");
-            if (header == null)
-            {
-                throw new UnauthorizedResponse("Authorization header is missing");
-            }
-            String token = header.split(" ")[1];
-            if (token == null)
-            {
-                throw new UnauthorizedResponse("Authorization header is malformed");
-            }
-            UserDTO verifiedTokenUser = verifyToken(token);
-            if (verifiedTokenUser == null)
-            {
-                throw new UnauthorizedResponse("Invalid user or token");
-            }
-            int timeToLive = tokenSecurity.timeToExpire(token);
-            LocalDateTime expireTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeToLive), ZoneId.systemDefault());
-            ZonedDateTime zTime = expireTime.atZone(ZoneId.systemDefault());
-            Long difference = zTime.toEpochSecond() - ZonedDateTime.now().toEpochSecond();
-            returnJson.put("msg", "Token is valid until " + zTime)
-                    .put("expireTime", zTime.toOffsetDateTime().toString())
-                    .put("secondsToLive", difference);
-            ctx.status(HttpStatus.OK).json(returnJson);
-        };
+
+        ObjectNode returnJson = objectMapper.createObjectNode();
+        String header = ctx.header("Authorization");
+        if (header == null)
+        {
+            throw new UnauthorizedResponse("Authorization header is missing");
+        }
+        String token = header.split(" ")[1];
+        if (token == null)
+        {
+            throw new UnauthorizedResponse("Authorization header is malformed");
+        }
+        UserDTO verifiedTokenUser = verifyToken(token);
+        if (verifiedTokenUser == null)
+        {
+            throw new UnauthorizedResponse("Invalid user or token");
+        }
+        int timeToLive = 0;
+        try
+        {
+            timeToLive = tokenSecurity.timeToExpire(token);
+        } catch (ParseException e)
+        {
+            throw new UnauthorizedResponse("Token could not be parsed. Invalid token");
+        }
+        logger.info("Time to live: " + timeToLive);
+        LocalDateTime expireTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeToLive), ZoneId.systemDefault());
+        ZonedDateTime zTime = expireTime.atZone(ZoneId.systemDefault());
+        Long difference = zTime.toEpochSecond() - ZonedDateTime.now().toEpochSecond();
+        returnJson.put("msg", "Token is valid until " + zTime)
+                .put("expireTime", zTime.toOffsetDateTime().toString())
+                .put("secondsToLive", difference);
+        ctx.status(HttpStatus.OK).json(returnJson);
+
     }
 
 
     private boolean userHasAllowedRole(UserDTO user, Set<RouteRole> allowedRoles) {
         return user.getRoles().stream()
                 .anyMatch(role -> allowedRoles.contains(Role.valueOf(role.toUpperCase())));
-    }
-
-    private boolean isOpenEndpoint(Set<String> allowedRoles) {
-        // If the endpoint is not protected with any roles:
-        if (allowedRoles.isEmpty())
-            return true;
-
-        // 1. Get permitted roles and Check if the endpoint is open to all with the ANYONE role
-        if (allowedRoles.contains("ANYONE")) {
-            return true;
-        }
-        return false;
     }
 
     private String createToken(UserDTO user) {
