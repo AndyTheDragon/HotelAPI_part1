@@ -1,7 +1,7 @@
 package dat.config;
 
 import dat.entities.*;
-import dat.utils.Utils;
+import dat.utils.PropertyReader;
 import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -94,9 +94,9 @@ public class HibernateConfig
     }
 
     private static Properties setDevProperties(Properties props) {
-        String DBName = Utils.getPropertyValue("DB_NAME", "config.properties");
-        String DB_USERNAME = Utils.getPropertyValue("DB_USERNAME", "config.properties");
-        String DB_PASSWORD = Utils.getPropertyValue("DB_PASSWORD", "config.properties");
+        String DBName = PropertyReader.getPropertyValue("DB_NAME", "config.properties");
+        String DB_USERNAME = PropertyReader.getPropertyValue("DB_USERNAME", "config.properties");
+        String DB_PASSWORD = PropertyReader.getPropertyValue("DB_PASSWORD", "config.properties");
         props.put("hibernate.connection.url", "jdbc:postgresql://localhost:5432/" + DBName);
         props.put("hibernate.connection.username", DB_USERNAME);
         props.put("hibernate.connection.password", DB_PASSWORD);
