@@ -2,52 +2,61 @@ package dat.dao;
 
 import dat.entities.Hotel;
 import dat.entities.Room;
+import jakarta.persistence.EntityManagerFactory;
 
 import java.util.List;
 
-public class HotelDAO implements IHotelDAO
+public class HotelDAO extends GenericDAO implements IHotelDAO
 {
+    public HotelDAO(EntityManagerFactory emf)
+    {
+        super(emf);
+    }
+
     public List<Hotel> getAllHotels()
     {
-        return List.of();
+        return super.getAll(Hotel.class);
     }
 
     public Hotel getHotelById(Long id)
     {
-        return null;
+        return super.getById(Hotel.class, id);
     }
 
     public Hotel createHotel(Hotel hotel)
     {
-        return null;
+        return super.create(hotel);
     }
 
     public Hotel updateHotel(Hotel hotel)
     {
-        return null;
+        return super.update(hotel);
     }
 
     public void deleteHotel(Long id)
     {
+        super.delete(Hotel.class, id);
     }
 
     @Override
     public Hotel addRoom(Hotel hotel, Room room)
     {
-        return null;
+        hotel.addRoom(room);
+        return update(hotel);
     }
 
     @Override
     public Hotel removeRoom(Hotel hotel, Room room)
     {
-        return null;
+        hotel.removeRoom(room);
+        Hotel updatedHotel = update(hotel);
+        delete(room);
+        return updatedHotel;
     }
 
     @Override
     public List<Room> getRoomsForHotel(Hotel hotel)
     {
-        return List.of();
+        return hotel.getRooms();
     }
-
-
 }

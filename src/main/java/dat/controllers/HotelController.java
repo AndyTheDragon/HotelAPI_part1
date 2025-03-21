@@ -1,6 +1,8 @@
 package dat.controllers;
 
+import dat.dao.CrudDAO;
 import dat.dao.GenericDAO;
+import dat.dao.HotelDAO;
 import dat.dto.ErrorMessage;
 import dat.dto.HotelDTO;
 import dat.entities.Hotel;
@@ -15,21 +17,28 @@ import org.slf4j.LoggerFactory;
 
 public class HotelController implements IController
 {
-    private final GenericDAO genericDao;
+    private final CrudDAO dao;
     private static final Logger logger = LoggerFactory.getLogger(HotelController.class);
 
 
     public HotelController(EntityManagerFactory emf)
     {
-        genericDao = GenericDAO.getInstance(emf);
+        dao = new HotelDAO(emf);
     }
+
+    public HotelController(CrudDAO dao)
+    {
+        this.dao = dao;
+    }
+
+
 
     @Override
     public void getAll(Context ctx)
     {
         try
         {
-            ctx.json(genericDao.findAll(Hotel.class));
+            ctx.json(dao.getAll(Hotel.class));
         }
         catch (Exception ex)
         {
@@ -48,7 +57,7 @@ public class HotelController implements IController
             long id = ctx.pathParamAsClass("id", Long.class)
                     .check(i -> i>0, "id must be at least 0")
                     .getOrThrow((validator) -> new BadRequestResponse("Invalid id"));
-            HotelDTO foundEntity = new HotelDTO(genericDao.read(Hotel.class, id));
+            HotelDTO foundEntity = new HotelDTO(dao.getById(Hotel.class, id));
             ctx.json(foundEntity);
 
         } catch (Exception ex){
@@ -65,11 +74,11 @@ public class HotelController implements IController
         {
             HotelDTO incomingTest = ctx.bodyAsClass(HotelDTO.class);
             Hotel entity = new Hotel(incomingTest);
-            Hotel createdEntity = genericDao.create(entity);
+            Hotel createdEntity = dao.create(entity);
             for (Room room : entity.getRooms())
             {
                 room.setHotel(createdEntity);
-                genericDao.update(room);
+                dao.update(room);
             }
             ctx.json(new HotelDTO(createdEntity));
         }
@@ -90,7 +99,7 @@ public class HotelController implements IController
                     .check(i -> i>0, "id must be at least 0")
                     .getOrThrow((validator) -> new BadRequestResponse("Invalid id"));
             HotelDTO incomingEntity = ctx.bodyAsClass(HotelDTO.class);
-            Hotel hotelToUpdate = genericDao.read(Hotel.class, id);
+            Hotel hotelToUpdate = dao.getById(Hotel.class, id);
             if (incomingEntity.getName() != null)
             {
                 hotelToUpdate.setName(incomingEntity.getName());
@@ -99,7 +108,7 @@ public class HotelController implements IController
             {
                 hotelToUpdate.setAddress(incomingEntity.getAddress());
             }
-            Hotel updatedEntity = genericDao.update(hotelToUpdate);
+            Hotel updatedEntity = dao.update(hotelToUpdate);
             HotelDTO returnedEntity = new HotelDTO(updatedEntity);
             ctx.json(returnedEntity);
         }
@@ -119,7 +128,7 @@ public class HotelController implements IController
             long id = ctx.pathParamAsClass("id", Long.class)
                     .check(i -> i>0, "id must be at least 0")
                     .getOrThrow((validator) -> new BadRequestResponse("Invalid id"));
-            genericDao.delete(Hotel.class, id);
+            dao.delete(Hotel.class, id);
             ctx.status(204);
         }
         catch (Exception ex)
@@ -137,7 +146,7 @@ public class HotelController implements IController
             long id = context.pathParamAsClass("id", Long.class)
                     .check(i -> i>0, "id must be at least 0")
                     .getOrThrow((validator) -> new BadRequestResponse("Invalid id"));
-            Hotel hotel = genericDao.read(Hotel.class, id);
+            Hotel hotel = dao.getById(Hotel.class, id);
             context.json(hotel.getRooms());
         }
         catch (Exception ex)
