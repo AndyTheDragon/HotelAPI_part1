@@ -3,7 +3,7 @@ package dat.controllers;
 import dat.config.ApplicationConfig;
 import dat.config.HibernateConfig;
 import dat.entities.Role;
-import dat.entities.User;
+import dat.entities.UserAccount;
 import dat.routes.Routes;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -52,7 +52,7 @@ class SecurityControllerTest {
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             // Clean up existing data
-            em.createQuery("DELETE FROM User").executeUpdate();
+            em.createQuery("DELETE FROM UserAccount").executeUpdate();
             em.createQuery("DELETE FROM Role").executeUpdate();
 
             // Create test roles
@@ -62,12 +62,12 @@ class SecurityControllerTest {
             em.persist(adminRole);
 
             // Create test user with user role
-            User testUser = new User(TEST_USER, TEST_PASSWORD);
-            testUser.addRole(userRole);
-            em.persist(testUser);
+            UserAccount testUserAccount = new UserAccount(TEST_USER, TEST_PASSWORD);
+            testUserAccount.addRole(userRole);
+            em.persist(testUserAccount);
 
             // Create test admin with admin role
-            User testAdmin = new User(TEST_ADMIN, TEST_PASSWORD);
+            UserAccount testAdmin = new UserAccount(TEST_ADMIN, TEST_PASSWORD);
             testAdmin.addRole(userRole);
             testAdmin.addRole(adminRole);
             em.persist(testAdmin);
@@ -191,7 +191,7 @@ class SecurityControllerTest {
 
     private int countUsers() {
         try (EntityManager em = emf.createEntityManager()) {
-            return em.createQuery("SELECT COUNT(u) FROM User u", Long.class).getSingleResult().intValue();
+            return em.createQuery("SELECT COUNT(u) FROM UserAccount u", Long.class).getSingleResult().intValue();
         }
     }
 

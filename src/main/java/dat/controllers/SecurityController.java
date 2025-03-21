@@ -6,11 +6,11 @@ import dat.config.HibernateConfig;
 import dat.dao.ISecurityDAO;
 import dat.dao.SecurityDAO;
 import dat.dto.ErrorMessage;
+import dat.entities.UserAccount;
 import dat.enums.Role;
 import dat.exceptions.ApiException;
 import dat.exceptions.NotAuthorizedException;
 import dat.exceptions.ValidationException;
-import dat.entities.User;
 import dat.utils.PropertyReader;
 import dk.bugelhartmann.*;
 import io.javalin.http.*;
@@ -83,10 +83,10 @@ public class SecurityController implements ISecurityController
         ObjectNode returnJson = objectMapper.createObjectNode();
         try {
             UserDTO userInput = ctx.bodyAsClass(UserDTO.class);
-            User createdUser = securityDAO.createUser(userInput.getUsername(), userInput.getPassword());
-            String token = createToken(new UserDTO(createdUser.getUsername(), Set.of("USER")));
+            UserAccount createdUserAccount = securityDAO.createUser(userInput.getUsername(), userInput.getPassword());
+            String token = createToken(new UserDTO(createdUserAccount.getUsername(), Set.of("USER")));
             returnJson.put("token", token)
-                    .put("username", createdUser.getUsername());
+                    .put("username", createdUserAccount.getUsername());
 
             ctx.status(HttpStatus.CREATED).json(returnJson);
         }

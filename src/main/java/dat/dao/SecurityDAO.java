@@ -1,9 +1,9 @@
 package dat.dao;
 
+import dat.entities.UserAccount;
 import dat.exceptions.ApiException;
 import dat.exceptions.ValidationException;
 import dat.entities.Role;
-import dat.entities.User;
 import dk.bugelhartmann.UserDTO;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
@@ -40,35 +40,35 @@ public class SecurityDAO implements ISecurityDAO
     {
         try (EntityManager em = emf.createEntityManager())
         {
-            User user = em.find(User.class, username);
-            if (user == null)
+            UserAccount userAccount = em.find(UserAccount.class, username);
+            if (userAccount == null)
             {
                 logger.error("User not found (username " + username + ")");
                 throw new EntityNotFoundException("User not found (username " + username + ")");
             }
             //user.getRoles().size();
-            if (!user.verifyPassword(password))
+            if (!userAccount.verifyPassword(password))
             {
-                logger.error(user.getUsername() + " " + user.getPassword());
+                logger.error(userAccount.getUsername() + " " + userAccount.getPassword());
                 throw new ValidationException("Password does not match");
             }
-            return new UserDTO(user.getUsername(), user.getRoles().stream().map(Role::getRoleName).collect(Collectors.toSet()));
+            return new UserDTO(userAccount.getUsername(), userAccount.getRoles().stream().map(Role::getRoleName).collect(Collectors.toSet()));
         }
     }
 
     @Override
-    public User createUser(String username, String password)
+    public UserAccount createUser(String username, String password)
     {
         try (EntityManager em = emf.createEntityManager())
         {
             // check if user already exists
-            User user = em.find(User.class, username);
-            if (user != null)
+            UserAccount userAccount = em.find(UserAccount.class, username);
+            if (userAccount != null)
             {
                 logger.error("User already exists (username " + username + ")");
                 throw new EntityExistsException("User already exists (username " + username + ")");
             }
-            user = new User(username, password);
+            userAccount = new UserAccount(username, password);
             em.getTransaction().begin();
             // check if role user already exists
             Role userRole = em.find(Role.class, "user");
@@ -78,11 +78,11 @@ public class SecurityDAO implements ISecurityDAO
                 userRole = new Role("user");
                 em.persist(userRole);
             }
-            user.addRole(userRole);
-            em.persist(user);
+            userAccount.addRole(userRole);
+            em.persist(userAccount);
             em.getTransaction().commit();
             logger.info("User created (username " + username + ")");
-            return user;
+            return userAccount;
         } catch (Exception e)
         {
             logger.error("Error creating user", e);
@@ -91,12 +91,12 @@ public class SecurityDAO implements ISecurityDAO
     }
 
     @Override
-    public User addRoleToUser(String username, String role)
+    public UserAccount addRoleToUser(String username, String role)
     {
         try (EntityManager em = emf.createEntityManager())
         {
-            User foundUser = em.find(User.class, username);
-            if (foundUser == null)
+            UserAccount foundUserAccount = em.find(UserAccount.class, username);
+            if (foundUserAccount == null)
             {
                 logger.error("User not found (username " + username + ")");
                 throw new EntityNotFoundException("User not found (username " + username + ")");
@@ -108,10 +108,10 @@ public class SecurityDAO implements ISecurityDAO
                 throw new EntityNotFoundException("Role not found (role " + role + ")");
             }
             em.getTransaction().begin();
-            foundUser.addRole(foundRole);
+            foundUserAccount.addRole(foundRole);
             em.getTransaction().commit();
             logger.info("Role added to user (username " + username + ", role " + role + ")");
-            return foundUser;
+            return foundUserAccount;
         }
         catch (Exception e)
         {
@@ -121,12 +121,12 @@ public class SecurityDAO implements ISecurityDAO
     }
 
     @Override
-    public User removeRoleFromUser(String username, String role)
+    public UserAccount removeRoleFromUser(String username, String role)
     {
         try (EntityManager em = emf.createEntityManager())
         {
-            User foundUser = em.find(User.class, username);
-            if (foundUser == null)
+            UserAccount foundUserAccount = em.find(UserAccount.class, username);
+            if (foundUserAccount == null)
             {
                 logger.error("User not found (username " + username + ")");
                 throw new EntityNotFoundException("User not found (username " + username + ")");
@@ -138,10 +138,10 @@ public class SecurityDAO implements ISecurityDAO
                 throw new EntityNotFoundException("Role not found (role " + role + ")");
             }
             em.getTransaction().begin();
-            foundUser.removeRole(foundRole);
+            foundUserAccount.removeRole(foundRole);
             em.getTransaction().commit();
             logger.info("Role removed from user (username " + username + ", role " + role + ")");
-            return foundUser;
+            return foundUserAccount;
         }
         catch (Exception e)
         {

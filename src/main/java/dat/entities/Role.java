@@ -21,7 +21,7 @@ public class Role implements Serializable
     private String roleName;
 
     @ManyToMany(mappedBy = "roles")
-    private final Set<User> users = new HashSet<>();
+    private final Set<UserAccount> userAccounts = new HashSet<>();
 
     public Role() {}
 
@@ -35,9 +35,9 @@ public class Role implements Serializable
         return roleName;
     }
 
-    public Set<User> getUsers()
+    public Set<UserAccount> getUsers()
     {
-        return users;
+        return userAccounts;
     }
 
     @Override

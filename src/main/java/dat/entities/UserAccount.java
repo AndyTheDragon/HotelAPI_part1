@@ -14,12 +14,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@NamedQueries(@NamedQuery(name = "User.deleteAllRows", query = "DELETE from User"))
+@NamedQueries(@NamedQuery(name = "User.deleteAllRows", query = "DELETE from UserAccount"))
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class User implements ISecurityUser, Serializable
+public class UserAccount implements ISecurityUser, Serializable
 {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -39,13 +39,13 @@ public class User implements ISecurityUser, Serializable
             inverseJoinColumns = @JoinColumn(name = "role_name", referencedColumnName = "role_name"))
     private Set<Role> roles = new HashSet<>();
 
-    public User(String userName, String userPass)
+    public UserAccount(String userName, String userPass)
     {
         this.username = userName;
         this.password = BCrypt.hashpw(userPass, BCrypt.gensalt());
     }
 
-    public User(String userName, Set<Role> roleEntityList)
+    public UserAccount(String userName, Set<Role> roleEntityList)
     {
         this.username = userName;
         this.roles = roleEntityList;
