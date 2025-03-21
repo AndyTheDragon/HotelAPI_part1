@@ -3,9 +3,8 @@ package dat.routes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dat.controllers.HotelController;
 import dat.controllers.SecurityController;
-import dat.enums.Role;
+import dat.enums.Roles;
 import io.javalin.apibuilder.EndpointGroup;
-import jakarta.persistence.EntityManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,20 +47,20 @@ public class Routes
     private  EndpointGroup authRoutes()
     {
         return () -> {
-            get("/test", ctx->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from Open")), Role.ANYONE);
-            get("/healthcheck", securityController::healthCheck, Role.ANYONE);
-            post("/login", securityController::login, Role.ANYONE);
-            post("/register", securityController::register, Role.ANYONE);
-            get("/verify", securityController::verify , Role.ANYONE);
-            get("/tokenlifespan", securityController::timeToLive , Role.ANYONE);
+            get("/test", ctx->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from Open")), Roles.ANYONE);
+            get("/healthcheck", securityController::healthCheck, Roles.ANYONE);
+            post("/login", securityController::login, Roles.ANYONE);
+            post("/register", securityController::register, Roles.ANYONE);
+            get("/verify", securityController::verify , Roles.ANYONE);
+            get("/tokenlifespan", securityController::timeToLive , Roles.ANYONE);
         };
     }
 
     private  EndpointGroup protectedRoutes()
     {
         return () -> {
-            get("/user_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from USER Protected")), Role.USER);
-            get("/admin_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from ADMIN Protected")), Role.ADMIN);
+            get("/user_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from USER Protected")), Roles.USER);
+            get("/admin_demo",(ctx)->ctx.json(jsonMapper.createObjectNode().put("msg",  "Hello from ADMIN Protected")), Roles.ADMIN);
         };
     }
 
