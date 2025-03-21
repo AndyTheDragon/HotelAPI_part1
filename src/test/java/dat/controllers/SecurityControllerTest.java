@@ -5,7 +5,6 @@ import dat.config.HibernateConfig;
 import dat.entities.Role;
 import dat.entities.User;
 import dat.routes.Routes;
-import dat.routes.SecurityRoutes;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
