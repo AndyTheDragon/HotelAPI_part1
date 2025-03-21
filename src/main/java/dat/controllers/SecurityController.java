@@ -7,7 +7,7 @@ import dat.dao.ISecurityDAO;
 import dat.dao.SecurityDAO;
 import dat.dto.ErrorMessage;
 import dat.entities.UserAccount;
-import dat.enums.Role;
+import dat.enums.Roles;
 import dat.exceptions.ApiException;
 import dat.exceptions.NotAuthorizedException;
 import dat.exceptions.ValidationException;
@@ -108,7 +108,7 @@ public class SecurityController implements ISecurityController
         // 1. Check if endpoint is open to all
         // If the endpoint is not protected with roles or is open to ANYONE role, then skip
         Set<RouteRole> permittedRoles = ctx.routeRoles();
-        if (permittedRoles.isEmpty() || permittedRoles.contains(Role.ANYONE)){
+        if (permittedRoles.isEmpty() || permittedRoles.contains(Roles.ANYONE)){
             return;
         }
 
@@ -212,7 +212,7 @@ public class SecurityController implements ISecurityController
 
     private boolean userHasAllowedRole(UserDTO user, Set<RouteRole> allowedRoles) {
         return user.getRoles().stream()
-                .anyMatch(role -> allowedRoles.contains(Role.valueOf(role.toUpperCase())));
+                .anyMatch(role -> allowedRoles.contains(Roles.valueOf(role.toUpperCase())));
     }
 
     private String createToken(UserDTO user) {

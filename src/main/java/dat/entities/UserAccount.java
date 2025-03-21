@@ -1,5 +1,6 @@
 package dat.entities;
 
+import dat.enums.Roles;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,37 +8,23 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
-@NamedQueries(@NamedQuery(name = "User.deleteAllRows", query = "DELETE from UserAccount"))
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class UserAccount implements ISecurityUser, Serializable
+public class UserAccount
 {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
     @Id
-    @Basic(optional = false)
-    @Column(name = "username", length = 25)
     private String username;
-
-    @Basic(optional = false)
-    @Column(name = "password")
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_name", referencedColumnName = "username"),
-            inverseJoinColumns = @JoinColumn(name = "role_name", referencedColumnName = "role_name"))
-    private Set<Role> roles = new HashSet<>();
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<Roles> roles = new HashSet<>();
 
     public UserAccount(String userName, String userPass)
     {
@@ -45,7 +32,7 @@ public class UserAccount implements ISecurityUser, Serializable
         this.password = BCrypt.hashpw(userPass, BCrypt.gensalt());
     }
 
-    public UserAccount(String userName, Set<Role> roleEntityList)
+    public UserAccount(String userName, Set<Roles> roleEntityList)
     {
         this.username = userName;
         this.roles = roleEntityList;
@@ -53,38 +40,33 @@ public class UserAccount implements ISecurityUser, Serializable
 
     public Set<String> getRolesAsString()
     {
-        return roles.stream().map(Role::getRoleName).collect(java.util.stream.Collectors.toSet());
+        return roles.stream().map(Roles::toString).collect(java.util.stream.Collectors.toSet());
     }
 
-    @Override
+
     public boolean verifyPassword(String pw)
     {
         return BCrypt.checkpw(pw, this.password);
     }
 
-    @Override
-    public void addRole(Role role)
+
+    public void addRole(Roles role)
     {
         if (role != null)
         {
             roles.add(role);
-            role.getUsers().add(this);
         }
     }
 
-    public void removeRole(Role role)
+    public void removeRole(Roles role)
     {
         roles.remove(role);
-        role.getUsers().remove(this);
     }
 
     public void removeRole(String roleName)
     {
-        roles.removeIf(r -> r.getRoleName().equals(roleName));
-        roles.stream()
-                .filter(r -> r.getRoleName().equals(roleName))
-                .findFirst()
-                .ifPresent(r -> r.getUsers().remove(this));
+        //roles.remove(Roles.valueOf(roleName.toUpperCase()));
+        roles.removeIf(r -> r.toString().equals(roleName));
     }
 
 

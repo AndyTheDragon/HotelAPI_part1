@@ -4,6 +4,7 @@ import dat.config.ApplicationConfig;
 import dat.config.HibernateConfig;
 import dat.entities.Role;
 import dat.entities.UserAccount;
+import dat.enums.Roles;
 import dat.routes.Routes;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -63,13 +64,13 @@ class SecurityControllerTest {
 
             // Create test user with user role
             UserAccount testUserAccount = new UserAccount(TEST_USER, TEST_PASSWORD);
-            testUserAccount.addRole(userRole);
+            testUserAccount.addRole(Roles.USER);
             em.persist(testUserAccount);
 
             // Create test admin with admin role
             UserAccount testAdmin = new UserAccount(TEST_ADMIN, TEST_PASSWORD);
-            testAdmin.addRole(userRole);
-            testAdmin.addRole(adminRole);
+            testAdmin.addRole(Roles.USER);
+            testAdmin.addRole(Roles.ADMIN);
             em.persist(testAdmin);
 
             em.getTransaction().commit();

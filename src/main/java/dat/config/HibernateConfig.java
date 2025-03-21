@@ -1,6 +1,7 @@
 package dat.config;
 
 import dat.entities.*;
+import dat.enums.Roles;
 import dat.utils.PropertyReader;
 import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.SessionFactory;
@@ -43,7 +44,7 @@ public class HibernateConfig
         configuration.addAnnotatedClass(Hotel.class);
         configuration.addAnnotatedClass(Room.class);
         configuration.addAnnotatedClass(UserAccount.class);
-        configuration.addAnnotatedClass(Role.class);
+        configuration.addAnnotatedClass(Roles.class);
     }
 
     private static EntityManagerFactory createEMF(boolean forTest) {

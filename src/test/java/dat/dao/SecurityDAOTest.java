@@ -2,11 +2,13 @@ package dat.dao;
 
 import dat.config.HibernateConfig;
 import dat.entities.UserAccount;
+import dat.enums.Roles;
 import dat.exceptions.ApiException;
 import dat.exceptions.DaoException;
 import dat.exceptions.ValidationException;
 import dat.entities.Role;
 import dk.bugelhartmann.UserDTO;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,7 +21,6 @@ class SecurityDAOTest {
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
     private static final SecurityDAO securityDAO = new SecurityDAO(emf);
     private static UserAccount testUserAccount;
-    private static Role userRole, adminRole;
 
     @BeforeEach
     void setUp() {
@@ -27,30 +28,16 @@ class SecurityDAOTest {
             em.getTransaction().begin();
             // Clean up existing data
             em.createQuery("DELETE FROM UserAccount").executeUpdate();
-            em.createQuery("DELETE FROM Role").executeUpdate();
-
-            // Create test roles
-            userRole = new Role("user");
-            adminRole = new Role("admin");
-            em.persist(userRole);
-            em.persist(adminRole);
 
             // Create test user with user role
             testUserAccount = new UserAccount("testuser", "password123");
-            testUserAccount.addRole(userRole);
+            testUserAccount.addRole(Roles.USER);
             em.persist(testUserAccount);
 
             em.getTransaction().commit();
         }
     }
 
-//    @AfterAll
-//    void tearDown() {
-//        if (emf != null && emf.isOpen()) {
-//            emf.close();
-//            System.out.println("EntityManagerFactory closed");
-//        }
-//    }
 
     @Test
     void testGetVerifiedUser_Success() throws ValidationException {
@@ -64,7 +51,7 @@ class SecurityDAOTest {
         // Assert
         assertNotNull(result);
         assertEquals(username, result.getUsername());
-        assertTrue(result.getRoles().contains("user"));
+        assertTrue(result.getRoles().contains(Roles.USER.toString()));
         assertEquals(1, result.getRoles().size());
     }
 
@@ -114,7 +101,7 @@ class SecurityDAOTest {
             UserAccount persistedUserAccount = em.find(UserAccount.class, username);
             assertNotNull(persistedUserAccount);
             assertEquals(1, persistedUserAccount.getRoles().size());
-            assertTrue(persistedUserAccount.getRolesAsString().contains("user"));
+            assertTrue(persistedUserAccount.getRolesAsString().contains("USER"));
         }
     }
 
@@ -125,11 +112,10 @@ class SecurityDAOTest {
         String password = "newpassword";
 
         // Act & Assert
-        ApiException exception = assertThrows(ApiException.class, () -> {
+        EntityExistsException exception = assertThrows(EntityExistsException.class, () -> {
             securityDAO.createUser(existingUsername, password);
         });
 
-        assertEquals(400, exception.getCode());
         assertTrue(exception.getMessage().contains("Error creating user"));
     }
 
@@ -137,24 +123,23 @@ class SecurityDAOTest {
     void testAddRoleToUser_Success() {
         // Arrange
         String username = testUserAccount.getUsername();
-        String roleName = adminRole.getRoleName();
 
         // Act
-        UserAccount result = securityDAO.addRoleToUser(username, roleName);
+        UserAccount result = securityDAO.addRoleToUser(username, Roles.ADMIN);
 
         // Assert
         assertNotNull(result);
         assertEquals(username, result.getUsername());
         assertEquals(2, result.getRoles().size());
-        assertTrue(result.getRolesAsString().contains("user"));
-        assertTrue(result.getRolesAsString().contains("admin"));
+        assertTrue(result.getRoles().contains(Roles.USER));
+        assertTrue(result.getRoles().contains(Roles.ADMIN));
 
         // Verify role was added in the database
         try (EntityManager em = emf.createEntityManager()) {
             UserAccount persistedUserAccount = em.find(UserAccount.class, username);
             assertNotNull(persistedUserAccount);
             assertEquals(2, persistedUserAccount.getRoles().size());
-            assertTrue(persistedUserAccount.getRolesAsString().contains("admin"));
+            assertTrue(persistedUserAccount.getRolesAsString().contains("ADMIN"));
         }
     }
 
@@ -162,57 +147,40 @@ class SecurityDAOTest {
     void testAddRoleToUser_UserNotFound() {
         // Arrange
         String nonExistentUsername = "nonexistentuser";
-        String roleName = "admin";
 
         // Act & Assert
-        ApiException exception = assertThrows(ApiException.class, () -> {
-            securityDAO.addRoleToUser(nonExistentUsername, roleName);
+        DaoException exception = assertThrows(DaoException.class, () -> {
+            securityDAO.addRoleToUser(nonExistentUsername, Roles.USER);
         });
 
-        assertEquals(400, exception.getCode());
-        assertTrue(exception.getMessage().contains("Error adding role to user"));
+        assertTrue(exception.getMessage().contains("Error reading object from db"));
     }
 
-    @Test
-    void testAddRoleToUser_RoleNotFound() {
-        // Arrange
-        String username = "testuser";
-        String nonExistentRole = "nonexistentrole";
-
-        // Act & Assert
-        ApiException exception = assertThrows(ApiException.class, () -> {
-            securityDAO.addRoleToUser(username, nonExistentRole);
-        });
-
-        assertEquals(400, exception.getCode());
-        assertTrue(exception.getMessage().contains("Error adding role to user"));
-    }
 
     @Test
     void testRemoveRoleFromUser_Success() {
         // First add admin role to test user
-        securityDAO.addRoleToUser("testuser", "admin");
+        securityDAO.addRoleToUser("testuser", Roles.ADMIN);
 
         // Arrange
         String username = "testuser";
-        String roleName = "admin";
 
         // Act
-        UserAccount result = securityDAO.removeRoleFromUser(username, roleName);
+        UserAccount result = securityDAO.removeRoleFromUser(username, Roles.ADMIN);
 
         // Assert
         assertNotNull(result);
         assertEquals(username, result.getUsername());
         assertEquals(1, result.getRoles().size());
-        assertTrue(result.getRolesAsString().contains("user"));
-        assertFalse(result.getRolesAsString().contains("admin"));
+        assertTrue(result.getRoles().contains(Roles.USER));
+        assertFalse(result.getRoles().contains(Roles.ADMIN));
 
         // Verify role was removed in the database
         try (EntityManager em = emf.createEntityManager()) {
             UserAccount persistedUserAccount = em.find(UserAccount.class, username);
             assertNotNull(persistedUserAccount);
             assertEquals(1, persistedUserAccount.getRoles().size());
-            assertFalse(persistedUserAccount.getRolesAsString().contains("admin"));
+            assertFalse(persistedUserAccount.getRoles().contains(Roles.ADMIN));
         }
     }
 
@@ -220,29 +188,13 @@ class SecurityDAOTest {
     void testRemoveRoleFromUser_UserNotFound() {
         // Arrange
         String nonExistentUsername = "nonexistentuser";
-        String roleName = "user";
 
         // Act & Assert
-        ApiException exception = assertThrows(ApiException.class, () -> {
-            securityDAO.removeRoleFromUser(nonExistentUsername, roleName);
+        DaoException exception = assertThrows(DaoException.class, () -> {
+            securityDAO.removeRoleFromUser(nonExistentUsername, Roles.USER);
         });
 
-        assertEquals(400, exception.getCode());
-        assertTrue(exception.getMessage().contains("Error removing role from user"));
+        assertTrue(exception.getMessage().contains("Error reading object from db"));
     }
 
-    @Test
-    void testRemoveRoleFromUser_RoleNotFound() {
-        // Arrange
-        String username = "testuser";
-        String nonExistentRole = "nonexistentrole";
-
-        // Act & Assert
-        ApiException exception = assertThrows(ApiException.class, () -> {
-            securityDAO.removeRoleFromUser(username, nonExistentRole);
-        });
-
-        assertEquals(400, exception.getCode());
-        assertTrue(exception.getMessage().contains("Error removing role from user"));
-    }
 }
