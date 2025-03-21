@@ -1,9 +1,9 @@
 package dat.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import dat.controllers.ISecurityController;
 import dat.controllers.SecurityController;
+import dat.dto.ErrorMessage;
 import dat.exceptions.ApiException;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
@@ -11,7 +11,6 @@ import io.javalin.config.JavalinConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.javalin.apibuilder.ApiBuilder.path;
 
 public class ApplicationConfig
 {
@@ -20,7 +19,7 @@ public class ApplicationConfig
     private static JavalinConfig javalinConfig;
     private static final Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private static final SecurityController securityController = new SecurityController();
+    private static final ISecurityController securityController = new SecurityController();
 
     private ApplicationConfig() {}
 
@@ -72,12 +71,7 @@ public class ApplicationConfig
         app.exception(ApiException.class, (e, ctx) -> {
             logger.error("ApiException: " + e.getMessage());
             int statusCode = e.getCode();
-            ObjectNode on = objectMapper
-                    .createObjectNode()
-                    .put("status", statusCode)
-                    .put("msg", e.getMessage());
-            ctx.json(on);
-            ctx.status(statusCode);
+            ctx.status(statusCode).json(new ErrorMessage(statusCode, e.getMessage()));
         });
         return instance;
     }
@@ -85,9 +79,7 @@ public class ApplicationConfig
     public ApplicationConfig handleException(){
         app.exception(Exception.class, (e,ctx)->{
             logger.error("Exception: " + e.getMessage());
-            ObjectNode node = objectMapper.createObjectNode();
-            node.put("msg",e.getMessage());
-            ctx.status(500).json(node);
+            ctx.status(500).json(new ErrorMessage(500, e.getMessage()));
         });
         logger.info("ExceptionHandler initiated");
         return instance;
