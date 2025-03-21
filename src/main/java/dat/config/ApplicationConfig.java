@@ -49,9 +49,7 @@ public class ApplicationConfig
 
     public ApplicationConfig setRoute(EndpointGroup routes)
     {
-        javalinConfig.router.apiBuilder(()-> {
-            path("/", routes);
-        });
+        javalinConfig.router.apiBuilder(routes);
         logger.info("Routes set");
         return instance;
     }
