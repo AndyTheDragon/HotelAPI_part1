@@ -72,8 +72,8 @@ public class SecurityController implements ISecurityController
         }
         catch (EntityNotFoundException | ValidationException e) {
             logger.error("Error logging in user", e);
-            //throw new APIException(401, "Could not verify user", e);
-            ctx.status(HttpStatus.UNAUTHORIZED).json(new ErrorMessage("Could not verify user " + e.getMessage()));
+            throw new ApiException(401, "Could not verify user", e);
+            //ctx.status(HttpStatus.UNAUTHORIZED).json(new ErrorMessage("Could not verify user " + e.getMessage()));
         }
     }
 
