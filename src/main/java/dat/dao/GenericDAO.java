@@ -1,7 +1,5 @@
 package dat.dao;
 
-import dat.entities.Hotel;
-import dat.entities.Room;
 import dat.exceptions.DaoException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -14,8 +12,8 @@ import java.util.List;
 
 public class GenericDAO implements CrudDAO
 {
-    protected static EntityManagerFactory emf;
-    private static final Logger logger = LoggerFactory.getLogger(GenericDAO.class);
+    protected final EntityManagerFactory emf;
+    private final Logger logger = LoggerFactory.getLogger(GenericDAO.class);
 
     public GenericDAO(EntityManagerFactory emf)
     {

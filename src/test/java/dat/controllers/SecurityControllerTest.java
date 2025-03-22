@@ -2,7 +2,6 @@ package dat.controllers;
 
 import dat.config.ApplicationConfig;
 import dat.config.HibernateConfig;
-import dat.entities.Role;
 import dat.entities.UserAccount;
 import dat.enums.Roles;
 import dat.routes.Routes;
@@ -27,7 +26,6 @@ class SecurityControllerTest {
 
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
     private final Logger logger = LoggerFactory.getLogger(SecurityControllerTest.class.getName());
-    private String token;
     private final String TEST_USER = "testuser";
     private final String TEST_PASSWORD = "password123";
     private final String TEST_ADMIN = "testadmin";
@@ -71,14 +69,6 @@ class SecurityControllerTest {
         }
     }
 
-//    @AfterAll
-//    void tearDown() {
-//        if (emf != null && emf.isOpen()) {
-//            emf.close();
-//            System.out.println("EntityManagerFactory closed");
-//        }
-//        ApplicationConfig.getInstance().stopServer();
-//    }
 
     @Test
     void healtcheck_test() {
@@ -174,7 +164,7 @@ class SecurityControllerTest {
                 .post("/auth/register");
         } catch (Exception e) {
             // Ignore any exceptions - we expect this to fail
-            logger.info("Expected exception: " + e.getMessage());
+            logger.info("Expected exception: {}", e.getMessage());
         }
 
         // Count users after the test

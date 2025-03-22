@@ -42,29 +42,16 @@ class GenericDAOTest
             em.createQuery("DELETE FROM Hotel ").executeUpdate();
             em.createNativeQuery("ALTER SEQUENCE hotel_id_seq RESTART WITH 1");
                 em.createNativeQuery("ALTER SEQUENCE room_id_seq RESTART WITH 1");
-//                em.persist(r1);
-//                em.persist(r2);
-//                em.persist(r3);
-//                em.persist(r4);
+
                 em.persist(h1);
                 em.persist(h2);
             em.getTransaction().commit();
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            fail();
         }
     }
-
-//    @AfterAll
-//    void tearDown()
-//    {
-//        if (emf != null && emf.isOpen())
-//        {
-//            emf.close();
-//            System.out.println("EntityManagerFactory closed");
-//        }
-//    }
 
     @Test
     void getInstance()

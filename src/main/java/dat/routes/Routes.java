@@ -12,8 +12,8 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Routes
 {
-    private HotelController hotelController;
-    private SecurityController securityController;
+    private final HotelController hotelController;
+    private final SecurityController securityController;
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private final Logger logger = LoggerFactory.getLogger(Routes.class);
 

@@ -10,7 +10,6 @@ import dat.entities.UserAccount;
 import dat.enums.Roles;
 import dat.exceptions.ApiException;
 import dat.exceptions.DaoException;
-import dat.exceptions.NotAuthorizedException;
 import dat.exceptions.ValidationException;
 import dat.utils.PropertyReader;
 import dk.bugelhartmann.*;
@@ -28,6 +27,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Set;
 
 public class SecurityController implements ISecurityController
@@ -113,21 +113,8 @@ public class SecurityController implements ISecurityController
             return;
         }
 
-        // If there is no token we do not allow entry
-        String header = ctx.header("Authorization");
-        if (header == null) {
-            throw new UnauthorizedResponse("Authorization header is missing"); // UnauthorizedResponse is javalin 6 specific but response is not json!
-//                throw new dat.exceptions.APIException(401, "Authorization header is missing");
-        }
-
-        // If the Authorization Header was malformed, then no entry
-        String token = header.split(" ")[1];
-        if (token == null) {
-            throw new UnauthorizedResponse("Authorization header is malformed"); // UnauthorizedResponse is javalin 6 specific but response is not json!
-//                throw new dat.exceptions.APIException(401, "Authorization header is malformed");
-
-        }
-        UserDTO verifiedTokenUser = verifyToken(token);
+        // Check that token is present and not malformed, and get the User from the token
+        UserDTO verifiedTokenUser = getUserFromToken(ctx);
         if (verifiedTokenUser == null) {
             throw new UnauthorizedResponse("Invalid user or token"); // UnauthorizedResponse is javalin 6 specific but response is not json!
 //                throw new dat.exceptions.APIException(401, "Invalid user or token");
@@ -176,22 +163,15 @@ public class SecurityController implements ISecurityController
     {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
-        String header = ctx.header("Authorization");
-        if (header == null)
-        {
-            throw new UnauthorizedResponse("Authorization header is missing");
-        }
-        String token = header.split(" ")[1];
-        if (token == null)
-        {
-            throw new UnauthorizedResponse("Authorization header is malformed");
-        }
-        UserDTO verifiedTokenUser = verifyToken(token);
+
+        UserDTO verifiedTokenUser = getUserFromToken(ctx);
         if (verifiedTokenUser == null)
         {
             throw new UnauthorizedResponse("Invalid user or token");
         }
-        int timeToLive = 0;
+
+        String token = Objects.requireNonNull(ctx.header("Authorization")).split(" ")[1];
+        int timeToLive;
         try
         {
             timeToLive = tokenSecurity.timeToExpire(token);
@@ -199,7 +179,7 @@ public class SecurityController implements ISecurityController
         {
             throw new UnauthorizedResponse("Token could not be parsed. Invalid token");
         }
-        logger.info("Time to live: " + timeToLive);
+        logger.info("Time to live: {}", timeToLive);
         LocalDateTime expireTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeToLive), ZoneId.systemDefault());
         ZonedDateTime zTime = expireTime.atZone(ZoneId.systemDefault());
         Long difference = zTime.toEpochSecond() - ZonedDateTime.now().toEpochSecond();
@@ -233,7 +213,7 @@ public class SecurityController implements ISecurityController
             }
             return tokenSecurity.createToken(user, ISSUER, TOKEN_EXPIRE_TIME, SECRET_KEY);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error creating token", e);
             throw new ApiException(500, "Could not create token");
         }
     }
@@ -246,10 +226,10 @@ public class SecurityController implements ISecurityController
             if (tokenSecurity.tokenIsValid(token, SECRET) && tokenSecurity.tokenNotExpired(token)) {
                 return tokenSecurity.getUserWithRolesFromToken(token);
             } else {
-                throw new NotAuthorizedException(403, "Token is not valid");
+                throw new ApiException(403, "Token is not valid");
             }
-        } catch (ParseException | NotAuthorizedException | TokenVerificationException e) {
-            e.printStackTrace();
+        } catch (ParseException | ApiException | TokenVerificationException e) {
+            logger.error("Error verifying token", e);
             throw new ApiException(HttpStatus.UNAUTHORIZED.getCode(), "Unauthorized. Could not verify token");
         }
     }

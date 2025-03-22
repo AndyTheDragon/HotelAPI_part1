@@ -28,10 +28,13 @@ public class SecurityDAO extends GenericDAO implements ISecurityDAO
         UserAccount userAccount = super.getById(UserAccount.class, username); //Throws DaoException if user not found
         if (!userAccount.verifyPassword(password))
         {
-            logger.error(userAccount.getUsername() + " " + userAccount.getPassword());
+            logger.error("{} {}", userAccount.getUsername(), userAccount.getPassword());
             throw new ValidationException("Password does not match");
         }
-        return new UserDTO(userAccount.getUsername(), userAccount.getRoles().stream().map(Roles::toString).collect(Collectors.toSet()));
+        return new UserDTO(userAccount.getUsername(), userAccount.getRoles()
+                                                    .stream()
+                                                    .map(Roles::toString)
+                                                    .collect(Collectors.toSet()));
 
     }
 
@@ -43,7 +46,7 @@ public class SecurityDAO extends GenericDAO implements ISecurityDAO
         try
         {
             userAccount = super.create(userAccount);
-            logger.info("User created (username " + username + ")");
+            logger.info("User created (username {})", username);
             return userAccount;
         }
         catch (Exception e)
@@ -61,7 +64,7 @@ public class SecurityDAO extends GenericDAO implements ISecurityDAO
         try
         {
             foundUser = super.update(foundUser);
-            logger.info("Role added to user (username " + username + ", role " + role + ")");
+            logger.info("Role added to user (username {}, role {})", username, role);
             return foundUser;
         }
         catch (Exception e)
@@ -79,7 +82,7 @@ public class SecurityDAO extends GenericDAO implements ISecurityDAO
         try
         {
             foundUserAccount = super.update(foundUserAccount);
-            logger.info("Role removed from user (username " + username + ", role " + role + ")");
+            logger.info("Role removed from user (username {}, role {})", username, role);
             return foundUserAccount;
         }
         catch (Exception e)

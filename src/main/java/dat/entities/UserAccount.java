@@ -10,6 +10,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -40,7 +41,7 @@ public class UserAccount
 
     public Set<String> getRolesAsString()
     {
-        return roles.stream().map(Roles::toString).collect(java.util.stream.Collectors.toSet());
+        return roles.stream().map(Roles::toString).collect(Collectors.toSet());
     }
 
 

@@ -56,7 +56,7 @@ public class ApplicationConfig
     public ApplicationConfig startServer(int port)
     {
         app.start(port);
-        logger.info("Server started on port: " + port);
+        logger.info("Server started on port: {}", port);
         return instance;
     }
 
@@ -69,7 +69,7 @@ public class ApplicationConfig
     {
         // Might be overruled by the setErrorHandling method
         app.exception(ApiException.class, (e, ctx) -> {
-            logger.error("ApiException: " + e.getMessage());
+            logger.error("ApiException: {}", e.getMessage());
             int statusCode = e.getCode();
             ctx.status(statusCode).json(new ErrorMessage(statusCode, e.getMessage()));
         });
@@ -78,7 +78,7 @@ public class ApplicationConfig
 
     public ApplicationConfig handleException(){
         app.exception(Exception.class, (e,ctx)->{
-            logger.error("Exception: " + e.getMessage());
+            logger.error("Exception: {}", e.getMessage());
             ctx.status(500).json(new ErrorMessage(500, e.getMessage()));
         });
         logger.info("ExceptionHandler initiated");

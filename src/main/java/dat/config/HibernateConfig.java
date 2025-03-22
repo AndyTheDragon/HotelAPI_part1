@@ -67,8 +67,7 @@ public class HibernateConfig
                     .applySettings(configuration.getProperties())
                     .build();
             SessionFactory sf = configuration.buildSessionFactory(serviceRegistry);
-            EntityManagerFactory emf = sf.unwrap(EntityManagerFactory.class);
-            return emf;
+            return sf.unwrap(EntityManagerFactory.class);
         }
         catch (Throwable ex) {
             System.err.println("Initial SessionFactory creation failed." + ex);
