@@ -15,7 +15,6 @@ public class Routes
     private final HotelController hotelController;
     private final SecurityController securityController;
     private final ObjectMapper jsonMapper = new ObjectMapper();
-    private final Logger logger = LoggerFactory.getLogger(Routes.class);
 
     public Routes(HotelController hotelController, SecurityController securityController)
     {

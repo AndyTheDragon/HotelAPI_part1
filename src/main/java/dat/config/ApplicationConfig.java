@@ -1,6 +1,5 @@
 package dat.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dat.controllers.ISecurityController;
 import dat.controllers.SecurityController;
 import dat.dto.ErrorMessage;
@@ -18,7 +17,6 @@ public class ApplicationConfig
     private static Javalin app;
     private static JavalinConfig javalinConfig;
     private static final Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private static final ISecurityController securityController = new SecurityController();
 
     private ApplicationConfig() {}
@@ -53,13 +51,6 @@ public class ApplicationConfig
         return instance;
     }
 
-    public ApplicationConfig startServer(int port)
-    {
-        app.start(port);
-        logger.info("Server started on port: {}", port);
-        return instance;
-    }
-
     public ApplicationConfig checkSecurityRoles() {
         app.beforeMatched(securityController::accessHandler); // authenticate and authorize
         return instance;
@@ -83,6 +74,12 @@ public class ApplicationConfig
         });
         logger.info("ExceptionHandler initiated");
         return instance;
+    }
+
+    public void startServer(int port)
+    {
+        app.start(port);
+        logger.info("Server started on port: {}", port);
     }
 
 

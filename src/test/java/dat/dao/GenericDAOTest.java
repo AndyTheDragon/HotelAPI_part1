@@ -38,11 +38,8 @@ class GenericDAOTest
             h2.addRoom(r3);
             h2.addRoom(r4);
             em.getTransaction().begin();
-            em.createQuery("DELETE FROM Room ").executeUpdate();
-            em.createQuery("DELETE FROM Hotel ").executeUpdate();
-            em.createNativeQuery("ALTER SEQUENCE hotel_id_seq RESTART WITH 1");
-                em.createNativeQuery("ALTER SEQUENCE room_id_seq RESTART WITH 1");
-
+                em.createQuery("DELETE FROM Room ").executeUpdate();
+                em.createQuery("DELETE FROM Hotel ").executeUpdate();
                 em.persist(h1);
                 em.persist(h2);
             em.getTransaction().commit();

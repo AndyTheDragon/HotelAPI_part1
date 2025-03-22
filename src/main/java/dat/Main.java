@@ -25,7 +25,7 @@ public class Main
                 .setRoute(routes.getRoutes())
                 .handleException()
                 .setApiExceptionHandling()
-                .startServer(7070)
-                .checkSecurityRoles();
+                .checkSecurityRoles()
+                .startServer(7070);
     }
 }
