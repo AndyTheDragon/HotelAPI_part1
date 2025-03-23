@@ -41,8 +41,8 @@ class SecurityControllerTest {
                 .setRoute(routes.getRoutes())
                 .handleException()
                 .setApiExceptionHandling()
-                .startServer(7079)
-                .checkSecurityRoles();
+                .checkSecurityRoles()
+                .startServer(7079);
         RestAssured.baseURI = "http://localhost:7079/api";
     }
 

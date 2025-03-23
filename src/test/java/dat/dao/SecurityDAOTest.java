@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SecurityDAOTest {
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
     private static final SecurityDAO securityDAO = new SecurityDAO(emf);
-    private static UserAccount testUserAccount;
+    private  UserAccount testUserAccount;
 
     @BeforeEach
     void setUp() {

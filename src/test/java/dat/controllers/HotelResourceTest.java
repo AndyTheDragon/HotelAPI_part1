@@ -41,8 +41,8 @@ class HotelResourceTest
                 .setRoute(routes.getRoutes())
                 .handleException()
                 .setApiExceptionHandling()
-                .startServer(7078)
-                .checkSecurityRoles();
+                .checkSecurityRoles()
+                .startServer(7078);
         RestAssured.baseURI = "http://localhost:7078/api";
     }
 
