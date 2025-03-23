@@ -5,8 +5,6 @@ import dat.controllers.HotelController;
 import dat.controllers.SecurityController;
 import dat.enums.Roles;
 import io.javalin.apibuilder.EndpointGroup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
